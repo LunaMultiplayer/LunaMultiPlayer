@@ -103,5 +103,23 @@ namespace Server.System.Vessel
                 vessel.Orbit.Update("body", msgData.BodyName);
             }
         }
+
+        /// <summary>
+        /// ORBIT/body is required for TUI location; apply it on every position message, not only on the throttled full patch.
+        /// </summary>
+        private static void ApplyOrbitalBodyNameFromPositionMessage(VesselPositionMsgData msgData)
+        {
+            if (string.IsNullOrEmpty(msgData.BodyName))
+                return;
+
+            var lockObj = Semaphore.GetOrAdd(msgData.VesselId, new object());
+            lock (lockObj)
+            {
+                if (!VesselStoreSystem.CurrentVessels.TryGetValue(msgData.VesselId, out var vessel))
+                    return;
+
+                vessel.Orbit.Update("body", msgData.BodyName);
+            }
+        }
     }
 }

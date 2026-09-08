@@ -104,6 +104,10 @@ namespace LmpClient
         ///         ~0.5s in steady-state means one very expensive frame just
         ///         landed (scene-load tail, vessel storm, etc.).</item>
         /// </list>
+        /// Also drives the per-second flush of <see cref="TsLoadProfiler"/>
+        /// so its <c>[LMP][TS-PROFILE]</c> line is emitted only on seconds
+        /// where an instrumented bucket actually fired — keeping the log
+        /// quiet on idle seconds and dense on contention seconds.
         /// </summary>
         private static void EmitHeartbeatIfDue()
         {
@@ -124,6 +128,9 @@ namespace LmpClient
                 $"[LMP][HEARTBEAT] tick t={Time.timeSinceLevelLoad:F1}s " +
                 $"scene={HighLogic.LoadedScene} vessels={vesselCount} " +
                 $"frame={Time.frameCount} dt={Time.unscaledDeltaTime:F2}s");
+
+            var tsProfile = TsLoadProfiler.FlushSnapshotOrNull();
+            if (tsProfile != null) LunaLog.Log(tsProfile);
         }
 
         #endregion

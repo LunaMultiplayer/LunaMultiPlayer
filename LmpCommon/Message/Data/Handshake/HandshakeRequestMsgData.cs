@@ -32,7 +32,7 @@ namespace LmpCommon.Message.Data.Handshake
             PlayerName = lidgrenMsg.ReadString();
             UniqueIdentifier = lidgrenMsg.ReadString();
 
-            //  For backwards compatibility with v0.29.0, only continue reading if there are more bytes to read
+            //  For backwards compatibility with 0.29.0, only continue reading if there are more bytes to read
             if (lidgrenMsg.Position < lidgrenMsg.LengthBits)
                 KspVersion = lidgrenMsg.ReadString();
         }

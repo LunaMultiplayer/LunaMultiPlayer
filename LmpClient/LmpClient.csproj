@@ -528,6 +528,7 @@
     <Compile Include="Systems\Warp\WarpMessageHandler.cs" />
     <Compile Include="Systems\Warp\WarpMessageSender.cs" />
     <Compile Include="Systems\Warp\WarpStructures.cs" />
+    <Compile Include="Diagnostics\TsLoadProfiler.cs" />
     <Compile Include="Diagnostics\VesselSyncDiagnostics.cs" />
     <Compile Include="Utilities\CommonUtil.cs" />
     <Compile Include="Extensions\ConfigNodeSerializer.cs" />

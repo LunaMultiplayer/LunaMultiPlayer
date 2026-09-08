@@ -68,14 +68,25 @@ namespace Server
             rootCommand.SetAction((parseResult, cancellationToken) =>
             {
                 ServerContext.DataDirectory = parseResult.GetValue(dataDirectoryOption).FullName;
-                return RunServerAsync(cancellationToken);
+                return RunServerAsync(cancellationToken, args);
             });
 
             return rootCommand.Parse(args).InvokeAsync(new InvocationConfiguration {ProcessTerminationTimeout = null}, CancellationTokenSrc.Token);
         }
 
-        private static async Task RunServerAsync(CancellationToken cancellationToken)
+        private static async Task RunServerAsync(CancellationToken cancellationToken, string[] args)
         {
+            // Memory diagnostics are an opt-in operator tool. Gating them on a CLI flag
+            // (rather than just the IntervalSettings entry) keeps the production log clean
+            // by default and means turning diagnostics on for a hosted server is a single
+            // launcher edit, not an XML edit followed by a restart.
+            // Note: We're going to true it for now and return to HasFlag another time.
+            var memoryDiagnosticsEnabled = HasFlag(args, "--memorydiag");
+
+            //Verify the .NET runtime before anything else so we can give users a clear,
+            //actionable message instead of failing later with a confusing error.
+            DotNetRuntimeChecker.EnsureCorrectRuntimeOrExit();
+
             try
             {
                 // Force culture to en-US to avoid 'System.Net.Sockets.resources' assembly load error.
@@ -83,8 +94,7 @@ namespace Server
                 Thread.CurrentThread.CurrentCulture = ci;
                 Thread.CurrentThread.CurrentUICulture = ci;
 
-                if (OperatingSystem.IsWindows())
-                    Console.Title = $"LMP {LmpVersioning.CurrentVersion}";
+                Console.Title = $"LMP {LmpVersioning.CurrentVersion}";
 
                 Console.OutputEncoding = Encoding.UTF8;
 
@@ -204,13 +214,11 @@ namespace Server
                 ModFileSystem.LoadModFile();
             }
 
-            if (OperatingSystem.IsWindows())
-            {
-                Console.Title += $" ({GeneralSettings.SettingsStore.ServerName})";
+            var title = $"LMP {LmpVersioning.CurrentVersion} ({GeneralSettings.SettingsStore.ServerName})";
 #if DEBUG
-                Console.Title += " DEBUG";
+            title += " DEBUG";
 #endif
-            }
+            Console.Title = title;
         }
 
         /// <summary>

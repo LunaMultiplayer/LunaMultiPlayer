@@ -10,8 +10,24 @@ using System.IO;
 namespace Server.Log
 {
     /// <summary>
-    /// Writes console log lines to the active <c>lmpserver_*.log</c> file under <see cref="LogFolder"/>.
-    /// A single persistent writer is used for performance and synchronized through <see cref="WriteLock"/>.
+    /// Server-side logger that mirrors every console line into a daily <c>lmpserver_*.log</c>
+    /// file under <see cref="LogFolder"/>.
+    ///
+    /// Writes go through a single persistent <see cref="StreamWriter"/> kept open for the
+    /// lifetime of the process (or until the file is rotated by reassigning
+    /// <see cref="LogFilename"/>). The previous implementation funneled every log line
+    /// through <see cref="FileHandler.AppendToFile"/>, which performed a full
+    /// <c>open → write → fsync → close</c> cycle per call. On Linux container hosts that
+    /// pattern dirties one or more page-cache pages on every line and inflates the cgroup
+    /// RSS that hosting panels report. Keeping the stream open and flushing per line gives
+    /// us identical "operator can tail the log live" semantics with a fraction of the
+    /// page-cache churn and zero per-line FileStream/StreamWriter allocations.
+    ///
+    /// Thread safety: every public log method ultimately calls <see cref="AfterPrint"/> on
+    /// <see cref="Singleton"/>, and that method takes <see cref="WriteLock"/> before
+    /// touching the writer. <see cref="StreamWriter"/> is not thread-safe and the server
+    /// runs many message-handler tasks concurrently, so a single write lock is the
+    /// simplest correct synchronization.
     /// </summary>
     public class LunaLog : BaseLogger
     {

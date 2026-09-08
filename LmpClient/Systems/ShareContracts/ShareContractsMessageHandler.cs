@@ -159,6 +159,24 @@ namespace LmpClient.Systems.ShareContracts
             Contract contract;
             try
             {
+                node.RemoveValues("type");
+                var contractType = ContractSystem.GetContractType(contractTypeName);
+                if (contractType == null)
+                {
+                    LunaLog.LogError($"[LMP]: Cannot load contract (GUID: {contractGuid}) — unknown type '{contractTypeName}'. Is a required contract mod missing?");
+                    return null;
+                }
+
+                if (ContractPartReferenceChecker.TryFindUnknownPartReference(node, out var unknownPartName))
+                {
+                    // A contract parameter (typically ContractConfigurator's PartValidation)
+                    // references a part that PartLoader doesn't know about on this client.
+                    // Rehydrating it would throw deep inside the parameter loader and spam
+                    // the log with a stack trace; skip it cleanly instead.
+                    LunaLog.Log($"[LMP]: Skipping contract '{contractTypeName}' because it references part '{unknownPartName}' which is not installed on this client.");
+                    return null;
+                }
+
                 contract = Contract.Load((Contract)Activator.CreateInstance(contractType), node);
             }
             catch (Exception e)

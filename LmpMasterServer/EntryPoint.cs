@@ -35,12 +35,7 @@ namespace LmpMasterServer
             {
                 ConsoleUtil.DisableConsoleQuickEdit();
 
-#pragma warning disable CA1416 // Platform compatibility check via Common.PlatformIsWindows()
-                Console.Title = $"LMP MasterServer {LmpVersioning.CurrentVersion}";
-
-                if (IsNightly)
-                    Console.Title += " NIGHTLY";
-#pragma warning restore CA1416
+                Console.Title = $"LMP MasterServer {LmpVersioning.CurrentVersion}" + (IsNightly ? " NIGHTLY" : "");
             }
 
             Console.OutputEncoding = Encoding.UTF8;

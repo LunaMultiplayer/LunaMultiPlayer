@@ -1,8 +1,10 @@
 ﻿using HarmonyLib;
 using KSP.UI.Screens;
 using LmpClient.Base;
+using LmpClient.Diagnostics;
 using LmpClient.Systems.VesselUpdateSys;
 using LmpCommon.Locks;
+using System.Diagnostics;
 using System.Reflection;
 using UnityEngine;
 
@@ -14,14 +16,24 @@ namespace LmpClient.Systems.KscScene
 
         public void OnLockAcquire(LockDefinition lockdefinition)
         {
+            //Diagnostic: this handler is the prime suspect for the TRACKSTATION
+            //entry stall — it fires once per LockAcquire response from the
+            //server and rebuilds the entire TS vessel list each time. The
+            //wrapping Stopwatch is the cheapest measurement available; the
+            //branch+two-add aggregation in TsLoadProfiler.Record is dwarfed by
+            //the work inside the handler itself.
+            var t0 = Stopwatch.GetTimestamp();
             System.RefreshTrackingStationVessels();
             RefreshMarkers();
+            TsLoadProfiler.Record(TsLoadProfiler.Bucket.OnLockAcquire, Stopwatch.GetTimestamp() - t0);
         }
 
         public void OnLockRelease(LockDefinition lockdefinition)
         {
+            var t0 = Stopwatch.GetTimestamp();
             System.RefreshTrackingStationVessels();
             RefreshMarkers();
+            TsLoadProfiler.Record(TsLoadProfiler.Bucket.OnLockRelease, Stopwatch.GetTimestamp() - t0);
         }
 
         /// <summary>
@@ -49,8 +61,10 @@ namespace LmpClient.Systems.KscScene
 
         public void OnVesselCreated(Vessel vessel)
         {
+            var t0 = Stopwatch.GetTimestamp();
             System.RefreshTrackingStationVessels();
             RefreshMarkers();
+            TsLoadProfiler.Record(TsLoadProfiler.Bucket.OnVesselCreated, Stopwatch.GetTimestamp() - t0);
         }
 
         public void OnVesselRename(GameEvents.HostedFromToAction<Vessel, string> pair)
@@ -69,8 +83,10 @@ namespace LmpClient.Systems.KscScene
 
         public void VesselInitialized(Vessel vessel, bool fromShipAssembly)
         {
+            var t0 = Stopwatch.GetTimestamp();
             System.RefreshTrackingStationVessels();
             RefreshMarkers();
+            TsLoadProfiler.Record(TsLoadProfiler.Bucket.VesselInitialized, Stopwatch.GetTimestamp() - t0);
         }
 
         private static void ClearMarkers()
@@ -87,8 +103,16 @@ namespace LmpClient.Systems.KscScene
 
         private static void RefreshMarkers()
         {
+            //Diagnostic: own bucket so we can separate "stock RefreshMarkers
+            //is slow" from "the wrapping handler is doing other slow work".
+            //This call is gated on SPACECENTER, so it is a no-op while the
+            //user is actually inside TRACKSTATION — but the same handlers
+            //also fire while sitting in SPACECENTER waiting for locks to
+            //arrive, where this would be the dominant cost.
+            var t0 = Stopwatch.GetTimestamp();
             if (KSCVesselMarkers.fetch && HighLogic.LoadedScene == GameScenes.SPACECENTER)
                 KSCVesselMarkers.fetch.RefreshMarkers();
+            TsLoadProfiler.Record(TsLoadProfiler.Bucket.RefreshMarkers, Stopwatch.GetTimestamp() - t0);
         }
     }
 }

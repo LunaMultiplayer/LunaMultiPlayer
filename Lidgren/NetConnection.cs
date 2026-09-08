@@ -479,6 +479,9 @@ namespace Lidgren.Network
 					// Unusual situation where server is actually already known, but got a nat introduction - oh well, lets handle it as usual
 					m_peer.HandleNatIntroduction(ptr);
 					break;
+				case NetMessageType.NatPunchMessage:
+					m_peer.LogDebug("Received NAT Punch Message");
+					break;
 				default:
 					m_peer.LogWarning("Connection received unhandled library message: " + tp);
 					break;

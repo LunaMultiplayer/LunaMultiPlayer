@@ -1,7 +1,9 @@
 ﻿using HarmonyLib;
 using KSP.UI.Screens;
 using LmpClient.Base;
+using LmpClient.Diagnostics;
 using LmpClient.Events;
+using System.Diagnostics;
 using System.Reflection;
 using UnityEngine;
 
@@ -70,13 +72,14 @@ namespace LmpClient.Systems.KscScene
 
         #region Public methods
 
-        /// <summary>
         /// Requests a tracking-station vessel-list refresh.
         /// Calls are coalesced and drained in <see cref="FlushPendingRefreshes"/>.
         /// </summary>
         public void RefreshTrackingStationVessels()
         {
+            var t0 = Stopwatch.GetTimestamp();
             _trackingStationRebuildPending = true;
+            TsLoadProfiler.Record(TsLoadProfiler.Bucket.RefreshTrackingStationVessels, Stopwatch.GetTimestamp() - t0);
         }
 
         #endregion
@@ -98,12 +101,14 @@ namespace LmpClient.Systems.KscScene
         /// </summary>
         private static void DoRefreshTrackingStationVessels()
         {
+            var t0 = Stopwatch.GetTimestamp();
             if (HighLogic.LoadedScene == GameScenes.TRACKSTATION)
             {
                 var spaceTracking = Object.FindObjectOfType<SpaceTracking>();
                 if (spaceTracking != null)
                     BuildSpaceTrackingVesselList?.Invoke(spaceTracking, null);
             }
+            TsLoadProfiler.Record(TsLoadProfiler.Bucket.TsRebuildFlush, Stopwatch.GetTimestamp() - t0);
         }
 
         #endregion

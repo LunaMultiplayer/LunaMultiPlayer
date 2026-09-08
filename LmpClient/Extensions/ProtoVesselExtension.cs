@@ -25,10 +25,22 @@ namespace LmpClient.Extensions
         }
 
         /// <summary>
-        /// Checks if the protovessel has resources, parts that you don't have or that they are banned
+        /// Checks if the protovessel has resources, parts that you don't have or that they are banned.
+        /// Also collects diagnostic information about EVERY problem on the vessel (banned parts, banned
+        /// resources, missing parts, missing resources) and logs it as a single line per category — this
+        /// is the line you want when chasing repeated <c>Vessel.UpdateCaches()</c> /
+        /// <c>CommNetVessel.UpdateComm()</c> NullReferenceExceptions on a peer's vessel: it tells you
+        /// which mod set the originating client expected without spamming one log line per part.
+        /// Behavior is unchanged: still returns true on the first hard-failure category encountered.
         /// </summary>
         public static bool HasInvalidParts(this ProtoVessel pv, bool verboseErrors)
         {
+            HashSet<string> bannedParts = null;
+            HashSet<string> missingParts = null;
+            HashSet<string> bannedResources = null;
+            HashSet<string> missingResources = null;
+            var sawHardFailure = false;
+
             foreach (var pps in pv.protoPartSnapshots)
             {
                 if (ModSystem.Singleton.ModControl && !ModSystem.Singleton.AllowedParts.Contains(pps.partName))
@@ -57,28 +69,47 @@ namespace LmpClient.Extensions
 
                 if (pps.partInfo == null)
                 {
-                    if (verboseErrors)
-                    {
-                        LunaLog.LogWarning($"Protovessel {pv.vesselID} ({pv.vesselName}) contains the MISSING PART '{pps.partName}'. Skipping load.");
-                        LunaScreenMsg.PostScreenMessage($"Cannot load '{pv.vesselName}' - missing part: {pps.partName}", 10f, ScreenMessageStyle.UPPER_CENTER);
-                    }
-
-                    return true;
+                    (missingParts ?? (missingParts = new HashSet<string>())).Add(pps.partName);
+                    sawHardFailure = true;
                 }
 
-                var missingResource = pps.resources.FirstOrDefault(r => !PartResourceLibrary.Instance.resourceDefinitions.Contains(r.resourceName));
-                if (missingResource != null && verboseErrors)
+                foreach (var res in pps.resources)
                 {
-                    var msg = $"Protovessel {pv.vesselID} ({pv.vesselName}) contains the MISSING RESOURCE '{missingResource.resourceName}'.";
-                    LunaLog.LogWarning(msg);
-                    ChatSystem.Singleton.PmMessageServer(msg);
-
-                    LunaScreenMsg.PostScreenMessage($"Vessel '{pv.vesselName}' contains the modded RESOURCE: {pps.partName}", 10f, ScreenMessageStyle.UPPER_CENTER);
-                    //We allow loading of vessels that have missing resources. They will be removed by the player with the lock tough...
+                    if (!PartResourceLibrary.Instance.resourceDefinitions.Contains(res.resourceName))
+                        (missingResources ?? (missingResources = new HashSet<string>())).Add(res.resourceName);
                 }
             }
 
-            return false;
+            if (verboseErrors)
+            {
+                if (bannedParts != null)
+                {
+                    var msg = $"Protovessel {pv.vesselID} ({pv.vesselName}) contains BANNED PART(S) [{string.Join(", ", bannedParts)}]. Skipping load.";
+                    LunaLog.LogWarning(msg);
+                    ChatSystem.Singleton.PmMessageServer(msg);
+                }
+                if (bannedResources != null)
+                {
+                    var msg = $"Protovessel {pv.vesselID} ({pv.vesselName}) contains BANNED RESOURCE(S) [{string.Join(", ", bannedResources)}]. Skipping load.";
+                    LunaLog.LogWarning(msg);
+                    ChatSystem.Singleton.PmMessageServer(msg);
+                }
+                if (missingParts != null)
+                {
+                    LunaLog.LogWarning($"Protovessel {pv.vesselID} ({pv.vesselName}) contains MISSING PART(S) [{string.Join(", ", missingParts)}] - your install is missing the mod(s) that define them. Skipping load.");
+                    LunaScreenMsg.PostScreenMessage($"Cannot load '{pv.vesselName}' - missing part(s): {string.Join(", ", missingParts)}", 10f, ScreenMessageStyle.UPPER_CENTER);
+                }
+                if (missingResources != null)
+                {
+                    //We allow loading of vessels that have missing resources. They will be removed by the player with the lock though...
+                    var msg = $"Protovessel {pv.vesselID} ({pv.vesselName}) contains MISSING RESOURCE(S) [{string.Join(", ", missingResources)}].";
+                    LunaLog.LogWarning(msg);
+                    ChatSystem.Singleton.PmMessageServer(msg);
+                    LunaScreenMsg.PostScreenMessage($"Vessel '{pv.vesselName}' contains modded RESOURCE(S): {string.Join(", ", missingResources)}", 10f, ScreenMessageStyle.UPPER_CENTER);
+                }
+            }
+
+            return sawHardFailure;
         }
 
         /// <summary>

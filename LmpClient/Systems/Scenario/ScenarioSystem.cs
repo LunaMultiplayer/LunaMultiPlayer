@@ -210,19 +210,64 @@ namespace LmpClient.Systems.Scenario
         {
             while (ScenarioQueue.TryDequeue(out var scenarioEntry))
             {
-                if (scenarioEntry == null)
+                LoadSingleScenarioEntry(scenarioEntry);
+            }
+        }
+
+        /// <summary>
+        /// Loads a single dequeued scenario entry into the active game. Isolated into its
+        /// own method so that an exception thrown while constructing or registering one
+        /// ProtoScenarioModule cannot abort the entire load loop and leave the player
+        /// stuck on the loading screen with a partially-populated game state. Each entry
+        /// is logged by module name on entry and on failure so that bad scenarios can be
+        /// identified from the log without an attached debugger.
+        /// </summary>
+        private static void LoadSingleScenarioEntry(ScenarioEntry scenarioEntry)
+        {
+            var moduleName = scenarioEntry?.ScenarioModule ?? "<unknown>";
+
+            try
+            {
+                if (scenarioEntry == null || scenarioEntry.ScenarioNode == null)
                 {
-                    LunaLog.LogError("[LMP]: Skipping null scenario queue entry.");
+                    LunaLog.LogError($"[LMP]: Skipping scenario entry '{moduleName}' because its data is missing.");
                     WriteNullScenarioDebugLog(null);
-                    continue;
+                    return;
                 }
+
+                // Short-circuit on the wire-level module name BEFORE constructing
+                // ProtoScenarioModule. The stock ctor calls ConfigNode.CopyTo, which
+                // NREs in CopyToRecursive when a scenario file on the server can't
+                // round-trip through LunaConfigNode (e.g. CivilianPopulation's
+                // repoJSON value contains literal '{' / '}'). If we know up front we
+                // wouldn't load this module anyway, don't even risk the ctor.
+                if (IgnoredScenarios.IgnoreReceive.Contains(moduleName))
+                {
+                    LunaLog.Log($"[LMP]: Ignoring {moduleName} scenario data (IgnoreReceive)");
+                    return;
+                }
+
+                // Strip any shared contracts that reference parts not installed on this
+                // client BEFORE handing the node to ProtoScenarioModule. KSP's stock
+                // scenario loader will otherwise pass each contract through
+                // ContractConfigurator's PartValidation parameter loader during scene
+                // transition, which throws ArgumentException and surfaces the in-game
+                // exception popup. Safe because ContractSystem is in
+                // IgnoredScenarios.IgnoreSend (clients never echo it back to the server)
+                // and live contract changes flow through ShareContractsSystem instead.
+                if (moduleName == ContractsScenarioSanitizer.ScenarioModuleName)
+                {
+                    ContractsScenarioSanitizer.StripContractsReferencingUnknownParts(scenarioEntry.ScenarioNode);
+                }
+
+                LunaLog.Log($"[LMP]: Processing {moduleName} scenario data");
 
                 if (scenarioEntry.ScenarioNode == null)
                 {
                     LunaLog.LogError(
                         $"[LMP]: Skipping scenario '{scenarioEntry.ScenarioModule}' with null ConfigNode. See NullScenario.log in your KSP install folder.");
                     WriteNullScenarioDebugLog(scenarioEntry);
-                    continue;
+                    return;
                 }
 
                 if (scenarioEntry.ScenarioModule == "ContractPreLoader")
@@ -278,28 +323,34 @@ namespace LmpClient.Systems.Scenario
                     }
                 }
 
-
-                ProtoScenarioModule psm;
                 try
                 {
-                    psm = new ProtoScenarioModule(scenarioEntry.ScenarioNode);
+                    var psm = new ProtoScenarioModule(scenarioEntry.ScenarioNode);
+                    if (IsScenarioModuleAllowed(psm.moduleName) && !IgnoredScenarios.IgnoreReceive.Contains(psm.moduleName))
+                    {
+                        LunaLog.Log($"[LMP]: Loading {psm.moduleName} scenario data");
+                        HighLogic.CurrentGame.scenarios.Add(psm);
+                    }
+                    else
+                    {
+                        LunaLog.Log($"[LMP]: Skipping {psm.moduleName} scenario data in {SettingsSystem.ServerSettings.GameMode} mode");
+                    }
                 }
                 catch (Exception e)
                 {
                     LunaLog.LogError(
                         $"[LMP]: Failed to apply scenario '{scenarioEntry.ScenarioModule}' (ConfigNode could not be copied into ProtoScenarioModule). {e}");
-                    continue;
+                    return;
                 }
 
-                if (IsScenarioModuleAllowed(psm.moduleName) && !IgnoredScenarios.IgnoreReceive.Contains(psm.moduleName))
-                {
-                    LunaLog.Log($"[LMP]: Loading {psm.moduleName} scenario data");
-                    HighLogic.CurrentGame.scenarios.Add(psm);
-                }
-                else
-                {
-                    LunaLog.Log($"[LMP]: Skipping {psm.moduleName} scenario data in {SettingsSystem.ServerSettings.GameMode} mode");
-                }
+            }
+            catch (Exception e)
+            {
+                // Swallow per-entry so the rest of the queue can still load. The user
+                // will be missing this one scenario module's state (e.g. an empty
+                // contracts board) but the game will still come up rather than NRE'ing
+                // out of MainSystem.Update and stranding the player.
+                LunaLog.LogError($"[LMP]: Failed to load '{moduleName}' scenario data; skipping it. Exception: {e}");
             }
         }
 

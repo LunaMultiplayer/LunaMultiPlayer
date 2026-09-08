@@ -101,6 +101,8 @@ namespace LmpClient.Systems.VesselProtoSys
             VesselProtos.Clear();
             VesselsUnableToLoad.Clear();
             QueuedVesselsToSend.Clear();
+            LastBroadcastDriftPartCount.Clear();
+            LocalTopologyTracker.ClearAll();
             ManeuverSignatures.Clear();
             LastBroadcastDriftPartCount.Clear();
             LocalTopologyTracker.ClearAll();
@@ -201,7 +203,50 @@ namespace LmpClient.Systems.VesselProtoSys
         }
 
         /// <summary>
-        /// Scenes where proto-swap is cheaper and safe; FLIGHT/TRACKSTATION keep full reloads.
+        /// Returns true when <paramref name="vessel"/> has a part-count drift we have not
+        /// already broadcast. Combines two short-circuits:
+        /// 1. <c>parts.Count == protoVessel.protoPartSnapshots.Count</c> means the live
+        ///    Vessel and its stored proto agree -- no drift, nothing to send.
+        /// 2. <c>parts.Count == LastBroadcastDriftPartCount[vesselId]</c> means we already
+        ///    broadcast at this exact part count; the server has the latest data and
+        ///    re-sending would just trigger an identical receiving-side reload storm.
+        /// The cache entry is updated when (and only when) we decide a broadcast is
+        /// warranted, so any subsequent change to <c>parts.Count</c> on the originating
+        /// side immediately re-arms the check.
+        /// </summary>
+        private static bool ShouldBroadcastDriftFor(Vessel vessel)
+        {
+            if (vessel == null || vessel.protoVessel?.protoPartSnapshots == null) return false;
+
+            var liveCount = vessel.parts.Count;
+            var protoCount = vessel.protoVessel.protoPartSnapshots.Count;
+            if (liveCount == protoCount) return false;
+
+            //ConcurrentDictionary even though VesselProtoSystem is single-threaded for
+            //the send path: we also clear entries from RemoveVessel which can be
+            //invoked from message-handling threads. The cost difference vs Dictionary
+            //is irrelevant at 2.5 s tick granularity.
+            if (LastBroadcastDriftPartCount.TryGetValue(vessel.id, out var lastSent) && lastSent == liveCount)
+                return false;
+
+            LastBroadcastDriftPartCount[vessel.id] = liveCount;
+            return true;
+        }
+
+        /// <summary>
+        /// Returns true for scenes where peer vessels exist in FlightGlobals strictly as
+        /// data carriers (unloaded / packed) and the player cannot see or interact with
+        /// them in-world. In those scenes a wire-side structural update can be applied
+        /// with a cheap proto-swap (<see cref="VesselLoader.UpdateProtoInPlace"/>) instead
+        /// of the full destructive <see cref="VesselLoader.LoadVessel"/> path; the latter
+        /// would still create a brand-new <see cref="Vessel"/> <see cref="UnityEngine.GameObject"/>,
+        /// run every <c>VesselModule.Awake</c>, and pay stock KSP's per-part persistentId
+        /// collision walk for no visible benefit while the player is in the VAB / SPH or
+        /// the Space Center scene.
+        /// In FLIGHT (the in-world vessel may be loaded and rendered) and TRACKSTATION
+        /// (the UI binds against the live <see cref="Vessel"/>'s vesselModules / crew
+        /// portraits) we keep the destructive path so the player-visible state stays in
+        /// lockstep with the wire.
         /// </summary>
         private static bool IsProtoSwapEligibleScene(GameScenes scene)
             => scene == GameScenes.SPACECENTER || scene == GameScenes.EDITOR;
@@ -282,6 +327,7 @@ namespace LmpClient.Systems.VesselProtoSys
                         VesselsUnableToLoad.Add(vesselId);
                         continue;
                     }
+                    
                     if (protoVessel.HasInvalidParts(verboseErrors))
                     {
                         VesselSyncDiagnostics.LogDiscarded(vesselId, SafeName(protoVessel),
