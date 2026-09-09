@@ -15,6 +15,7 @@ namespace LmpClient.Windows.Status
         public const string VesselsBtnTxt = "Vessels";
 
         public const string WarpingLabelTxt = "WARPING";
+        public const string SpectateBtnTxt = "Spectate";
         public const string Debug1BtnTxt = "D1";
         public const string Debug2BtnTxt = "D2";
         public const string Debug3BtnTxt = "D3";

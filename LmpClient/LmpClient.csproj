@@ -321,6 +321,7 @@
     <Compile Include="Systems\Screenshot\ScreenshotMessageHandler.cs" />
     <Compile Include="Systems\Screenshot\ScreenshotMessageSender.cs" />
     <Compile Include="Systems\Screenshot\ScreenshotSystem.cs" />
+    <Compile Include="Systems\Spectate\SpectateSystem.cs" />
     <Compile Include="Systems\ShareProgress\ShareProgressBaseSystem.cs" />
     <Compile Include="Systems\SharePurchaseParts\SharePurchasePartsEvents.cs" />
     <Compile Include="Systems\SharePurchaseParts\SharePurchasePartsMessageHandler.cs" />
