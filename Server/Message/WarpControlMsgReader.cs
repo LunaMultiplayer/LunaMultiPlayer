@@ -23,6 +23,9 @@ namespace Server.Message
                 case WarpMessageType.ChangeSubspace:
                     WarpReceiver.HandleChangeSubspace(client, (WarpChangeSubspaceMsgData)messageData);
                     break;
+                case WarpMessageType.WarpingTime:
+                    WarpReceiver.HandleWarpingTime(client, (WarpingTimeMsgData)messageData);
+                    break;
                 case WarpMessageType.SubspacesRequest:
                     WarpReceiver.HandleSubspaceRequest(client);
                     //We don't use this message anymore so we can recycle it

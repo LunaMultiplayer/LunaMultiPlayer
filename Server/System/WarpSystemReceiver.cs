@@ -73,6 +73,17 @@ namespace Server.System
             }
         }
 
+        public void HandleWarpingTime(ClientStructure client, WarpingTimeMsgData message)
+        {
+            if (message.PlayerName != client.PlayerName) return;
+
+            var msgData = ServerContext.ServerMessageFactory.CreateNewMessageData<WarpingTimeMsgData>();
+            msgData.PlayerName = message.PlayerName;
+            msgData.ServerTimeDifference = message.ServerTimeDifference;
+
+            MessageQueuer.RelayMessage<WarpSrvMsg>(client, msgData);
+        }
+
         public void HandleSubspaceRequest(ClientStructure client)
         {
             lock (CreateSubspaceLock)

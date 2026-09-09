@@ -64,6 +64,13 @@ namespace LmpClient.Systems.Warp
                         System.ClientSubspaceList[data.PlayerName] = data.Subspace;
                     }
                     break;
+                case WarpMessageType.WarpingTime:
+                    {
+                        var data = (WarpingTimeMsgData)msgData;
+                        if (data.PlayerName != SettingsSystem.CurrentSettings.PlayerName && !System.CurrentlyWarping)
+                            System.WarpingSubspaceTime = data.ServerTimeDifference;
+                    }
+                    break;
                 default:
                     {
                         LunaLog.LogError($"[LMP]: Unhandled WARP_MESSAGE type: {msgData.WarpMessageType}");

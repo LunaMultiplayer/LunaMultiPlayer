@@ -45,5 +45,18 @@ namespace LmpClient.Systems.Warp
 
             SendMessage(msgData);
         }
+
+        /// <summary>
+        /// Sends our current time difference against the server clock so other players can see
+        /// how far ahead/behind we are while we are warping
+        /// </summary>
+        public void SendWarpingTimeMsg(double serverTimeDifference)
+        {
+            var msgData = NetworkMain.CliMsgFactory.CreateNewMessageData<WarpingTimeMsgData>();
+            msgData.PlayerName = SettingsSystem.CurrentSettings.PlayerName;
+            msgData.ServerTimeDifference = serverTimeDifference;
+
+            SendMessage(msgData);
+        }
     }
 }

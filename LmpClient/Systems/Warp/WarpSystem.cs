@@ -56,6 +56,7 @@ namespace LmpClient.Systems.Warp
 
         public ConcurrentDictionary<string, int> ClientSubspaceList { get; } = new ConcurrentDictionary<string, int>();
         public ConcurrentDictionary<int, double> Subspaces { get; } = new ConcurrentDictionary<int, double>();
+        public double WarpingSubspaceTime { get; set; }
         public int LatestSubspace => Subspaces.Any() ? Subspaces.OrderByDescending(s => s.Value).First().Key : 0;
         private ScreenMessage WarpMessage { get; set; }
         private WarpEvents WarpEvents { get; } = new WarpEvents();
@@ -80,6 +81,7 @@ namespace LmpClient.Systems.Warp
             GameEvents.onLevelWasLoadedGUIReady.Remove(WarpEvents.OnSceneChanged);
             ClientSubspaceList.Clear();
             Subspaces.Clear();
+            WarpingSubspaceTime = 0;
             SubspaceEntries.Clear();
             _currentSubspace = int.MinValue;
             SkipSubspaceProcess = false;
@@ -97,6 +99,7 @@ namespace LmpClient.Systems.Warp
                 SetupRoutine(new RoutineDefinition(100, RoutineExecution.Update, CheckWarpStopped));
                 SetupRoutine(new RoutineDefinition(1000, RoutineExecution.Update, WarpIfSpectatingToController));
                 SetupRoutine(new RoutineDefinition(5000, RoutineExecution.Update, CheckStuckAtWarp));
+                SetupRoutine(new RoutineDefinition(1000, RoutineExecution.Update, SendWarpingTime));
             }
         }
 
@@ -146,6 +149,18 @@ namespace LmpClient.Systems.Warp
                 WarpEvent.onTimeWarpStopped.Fire();
                 RequestNewSubspace();
             }
+        }
+
+        /// <summary>
+        /// While warping, keep the warping subspace time updated with our own time and broadcast it
+        /// so other players can see our relative time in the status window
+        /// </summary>
+        private void SendWarpingTime()
+        {
+            if (!CurrentlyWarping) return;
+
+            WarpingSubspaceTime = TimeSyncSystem.UniversalTime - TimeSyncSystem.ServerClockSec;
+            MessageSender.SendWarpingTimeMsg(WarpingSubspaceTime);
         }
 
         #endregion
@@ -247,6 +262,15 @@ namespace LmpClient.Systems.Warp
         /// </summary>
         public double GetSubspaceTime(int subspace)
         {
+            if (subspace == -1)
+            {
+                var warpingResult = TimeSyncSystem.ServerClockSec + WarpingSubspaceTime;
+                if (double.IsNaN(warpingResult) || double.IsInfinity(warpingResult) || warpingResult < 0)
+                    return 0d;
+
+                return warpingResult;
+            }
+
             if (!Subspaces.ContainsKey(subspace)) return 0d;
 
             var result = TimeSyncSystem.ServerClockSec + Subspaces[subspace];

@@ -77,6 +77,8 @@ namespace LmpClient.Windows.Status
                 GUILayout.BeginHorizontal(GUILayout.ExpandWidth(true));
                 if (SubspaceDisplay[i].SubspaceId == -1)
                 {
+                    GUILayout.Label(StatusTexts.GetTimeLabel(SubspaceDisplay[i]));
+                    GUILayout.FlexibleSpace();
                     GUILayout.Label(StatusTexts.WarpingLabelTxt, BoldRedLabelStyle);
                 }
                 else
