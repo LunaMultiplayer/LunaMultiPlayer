@@ -1,4 +1,4 @@
-﻿using LmpCommon;
+using LmpCommon;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
 
@@ -17,6 +17,5 @@ namespace LmpCommonTest
             Assert.IsFalse(IPAddress.Parse("fe80::2345:6789").IsIPv6UniqueLocal(), "IPAddress.Parse('fe80::2345:6789').IsIPv6UniqueLocal() should be false");
             Assert.IsFalse(IPAddress.Parse("192.0.2.0").IsIPv6UniqueLocal(), "IPAddress.Parse('192.0.2.0').IsIPv6UniqueLocal() should be false");
         }
-
     }
 }

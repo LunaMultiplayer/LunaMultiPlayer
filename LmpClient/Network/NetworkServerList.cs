@@ -1,4 +1,4 @@
-﻿using Lidgren.Network;
+using Lidgren.Network;
 using LmpClient.Systems.Ping;
 using LmpCommon;
 using LmpCommon.Message.Data.MasterServer;
@@ -126,90 +126,45 @@ namespace LmpClient.Network
                 var amListeningOnIPv6 =
                     NetworkMain.ClientConnection.Socket.AddressFamily == AddressFamily.InterNetworkV6;
 
-                if (ServerIsInLocalLan(serverInfo.ExternalEndpoint) || (amListeningOnIPv6 && ServerIsInLocalLan(serverInfo.InternalEndpoint6)))
+                try
                 {
-                    LunaLog.Log("Server is in LAN. Skipping NAT punch");
-                    var endpoints = new List<IPEndPoint>();
-                    if (amListeningOnIPv6 && !serverInfo.InternalEndpoint6.Address.Equals(IPAddress.IPv6Loopback))
-                        endpoints.Add(serverInfo.InternalEndpoint6);
-                    if (!serverInfo.InternalEndpoint.Address.Equals(IPAddress.Loopback))
-                        endpoints.Add(serverInfo.InternalEndpoint);
-                    NetworkConnection.ConnectToServer(endpoints.ToArray(), Password);
+                    receivedNATIntroductionSuccessResponse = false;
+
+                    var msgData = NetworkMain.CliMsgFactory.CreateNewMessageData<MsIntroductionMsgData>();
+                    msgData.Id = serverId;
+                    msgData.Token = MainSystem.UniqueIdentifier;
+
+                    var localPort = NetworkMain.ClientConnection.Port;
+                    msgData.InternalEndpoint = new IPEndPoint(LunaNetUtils.GetOwnInternalIPv4Address(), localPort);
+                    // Only send IPv6 address if actually listening on IPv6, otherwise send loopback with means "none".
+                    msgData.InternalEndpoint6 = amListeningOnIPv6
+                        ? new IPEndPoint(LunaNetUtils.GetOwnInternalIPv6Address(), localPort)
+                        : new IPEndPoint(IPAddress.IPv6Loopback, localPort);
+
+                    var introduceMsg = NetworkMain.MstSrvMsgFactory.CreateNew<MainMstSrvMsg>(msgData);
+
+                    MainSystem.Singleton.Status = "Requesting NAT introduction";
+                    LunaLog.Log($"[LMP]: Sending NAT introduction request to master servers. " +
+                                $"Token: {MainSystem.UniqueIdentifier}, " +
+                                $"Internal Endpoint: {msgData.InternalEndpoint}, " +
+                                $"Internal Endpoint v6: {msgData.InternalEndpoint6}");
+                    NetworkSender.QueueOutgoingMessage(introduceMsg);
+
+                    // If the NAT introduction didn't succeed after 10s, show an error
+                    Base.SystemBase.TaskFactory.StartNew(() => {
+                        Thread.Sleep(10000);
+                        if (!receivedNATIntroductionSuccessResponse)
+                        {
+                            LunaLog.Log("[LMP]: NAT introduction did not succeed after 10 seconds");
+                            MainSystem.Singleton.Status = "Error: NAT introduction timeout";
+                        }
+                    });
                 }
-                else
+                catch (Exception e)
                 {
-                    try
-                    {
-                        receivedNATIntroductionSuccessResponse = false;
-
-                        var msgData = NetworkMain.CliMsgFactory.CreateNewMessageData<MsIntroductionMsgData>();
-                        msgData.Id = serverId;
-                        msgData.Token = MainSystem.UniqueIdentifier;
-
-                        var localPort = NetworkMain.ClientConnection.Port;
-                        msgData.InternalEndpoint = new IPEndPoint(LunaNetUtils.GetOwnInternalIPv4Address(), localPort);
-                        // Only send IPv6 address if actually listening on IPv6, otherwise send loopback with means "none".
-                        msgData.InternalEndpoint6 = amListeningOnIPv6
-                            ? new IPEndPoint(LunaNetUtils.GetOwnInternalIPv6Address(), localPort)
-                            : new IPEndPoint(IPAddress.IPv6Loopback, localPort);
-
-                        var introduceMsg = NetworkMain.MstSrvMsgFactory.CreateNew<MainMstSrvMsg>(msgData);
-
-                        MainSystem.Singleton.Status = "Requesting NAT introduction";
-                        LunaLog.Log($"[LMP]: Sending NAT introduction request to master servers. " +
-                                    $"Token: {MainSystem.UniqueIdentifier}, " +
-                                    $"Internal Endpoint: {msgData.InternalEndpoint}, " +
-                                    $"Internal Endpoint v6: {msgData.InternalEndpoint6}");
-                        NetworkSender.QueueOutgoingMessage(introduceMsg);
-
-                        // If the NAT introduction didn't succeed after 10s, show a
-                        Base.SystemBase.TaskFactory.StartNew(() => {
-                            Thread.Sleep(10000);
-                            if (!receivedNATIntroductionSuccessResponse)
-                            {
-                                LunaLog.Log("[LMP]: NAT introduction did not succeed after 10 seconds");
-                                MainSystem.Singleton.Status = "Error: NAT introduction timeout";
-                            }
-                        });
-                    }
-                    catch (Exception e)
-                    {
-                        LunaLog.LogError($"[LMP]: Error connecting to server: {e}");
-                    }
+                    LunaLog.LogError($"[LMP]: Error connecting to server: {e}");
                 }
             }
-        }
-
-        /// <summary>
-        /// Returns true if the server is running in a local LAN
-        /// </summary>
-        private static bool ServerIsInLocalLan(IPEndPoint serverEndPoint)
-        {
-            if (serverEndPoint.AddressFamily == AddressFamily.InterNetworkV6)
-            {
-                var ownNetwork = LunaNetUtils.GetOwnInternalIPv6Network();
-                if (ownNetwork == null)
-                    return false;
-
-                // For IPv6, we strip both addresses down to the subnet portion (likely the first 64 bits) and compare them.
-                // Because we only receive Global Unique Addresses from GetOwnInternalIPv6Network() (which are globally
-                // unique, as the name suggests and the RFCs define), those being equal should mean both are on the same network.
-                var ownBytes = ownNetwork.Address.GetAddressBytes();
-                var serverBytes = serverEndPoint.Address.GetAddressBytes();
-                // TODO IPv6: We currently assume an on-link prefix length of 64 bits, which is the most common case
-                // and standardized as per the RFCs. UnicastIPAddressInformation.PrefixLength is not implemented yet,
-                // and also wouldn't be reliable (hosts often assign their address as /128). A possible solution could be
-                // checking whether serverEndPoint matches any configured on-link/no-gateway route.
-                Array.Resize(ref ownBytes, 8);
-                Array.Resize(ref serverBytes, 8);
-                if (ownBytes == serverBytes)
-                    return true;
-            }
-            else
-            {
-                return Equals(LunaNetUtils.GetOwnExternalIpAddress(), serverEndPoint.Address);
-            }
-            return false;
         }
 
         /// <summary>
