@@ -8,6 +8,7 @@ using Server.Context;
 using Server.Log;
 using Server.Message;
 using Server.Message.Base;
+using Server.System.Waypoint;
 using Server.Plugin;
 using System;
 using System.Collections.Generic;
@@ -40,6 +41,7 @@ namespace Server.Server
             [ClientMessageType.Facility] = new FacilityMsgReader(),
             [ClientMessageType.Screenshot] = new ScreenshotMsgReader(),
             [ClientMessageType.ShareProgress] = new ShareProgressMsgReader(),
+            [ClientMessageType.Waypoint] = new WaypointMsgReader(),
         };
 
         #endregion

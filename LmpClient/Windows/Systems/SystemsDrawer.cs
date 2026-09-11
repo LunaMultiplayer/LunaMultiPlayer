@@ -34,6 +34,7 @@ using LmpClient.Systems.VesselResourceSys;
 using LmpClient.Systems.VesselSwitcherSys;
 using LmpClient.Systems.VesselUpdateSys;
 using LmpClient.Systems.Warp;
+using LmpClient.Systems.Waypoint;
 using UnityEngine;
 
 namespace LmpClient.Windows.Systems
@@ -78,6 +79,7 @@ namespace LmpClient.Windows.Systems
             ScenarioSystem.Singleton.Enabled = GUILayout.Toggle(ScenarioSystem.Singleton.Enabled, ScenarioSystem.Singleton.SystemName);
             TimeSyncSystem.Singleton.Enabled = GUILayout.Toggle(TimeSyncSystem.Singleton.Enabled, TimeSyncSystem.Singleton.SystemName);
             WarpSystem.Singleton.Enabled = GUILayout.Toggle(WarpSystem.Singleton.Enabled, WarpSystem.Singleton.SystemName);
+            WaypointSystem.Singleton.Enabled = GUILayout.Toggle(WaypointSystem.Singleton.Enabled, WaypointSystem.Singleton.SystemName);
 
 
             //Toolbar = GUILayout.Toggle(Toolbar, "Toolbar system");

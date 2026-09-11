@@ -42,6 +42,7 @@ using LmpClient.Systems.VesselResourceSys;
 using LmpClient.Systems.VesselUndockSys;
 using LmpClient.Systems.VesselUpdateSys;
 using LmpClient.Systems.Warp;
+using LmpClient.Systems.Waypoint;
 using LmpCommon.Enums;
 using LmpCommon.Message.Data.ShareProgress;
 using LmpCommon.Message.Data.Vessel;
@@ -245,6 +246,9 @@ namespace LmpClient.Network
                     break;
                 case ServerMessageType.Facility:
                     FacilitySystem.Singleton.EnqueueMessage(msg);
+                    break;
+                case ServerMessageType.Waypoint:
+                    WaypointSystem.Singleton.EnqueueMessage(msg);
                     break;
                 case ServerMessageType.ShareProgress:
                     switch (((ShareProgressBaseMsgData)msg.Data).ShareProgressMessageType)

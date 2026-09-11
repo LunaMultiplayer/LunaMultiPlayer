@@ -201,6 +201,7 @@
     <Compile Include="Harmony\ScenarioDiscoverableObjects_SpawnComet.cs" />
     <Compile Include="Harmony\ScenarioDiscoverableObjects_UpdateSpaceObjects.cs" />
     <Compile Include="Harmony\ScenarioNewGameIntro_OnLoad.cs" />
+    <Compile Include="Harmony\ScenarioCustomWaypoints.cs" />
     <Compile Include="Harmony\ShipConstruction_AssembleForLaunch.cs" />
     <Compile Include="Harmony\SpaceTracking_StopTrackingObject.cs" />
     <Compile Include="Harmony\SpaceTracking_StartTrackingObject.cs" />
@@ -372,6 +373,7 @@
     <Compile Include="Systems\Groups\GroupMessageHandler.cs" />
     <Compile Include="Systems\Groups\GroupMessageSender.cs" />
     <Compile Include="Systems\Groups\GroupSystem.cs" />
+    <Compile Include="Systems\Waypoint\WaypointSystem.cs" />
     <Compile Include="Systems\KerbalSys\KerbalEvents.cs" />
     <Compile Include="Systems\Ping\PingSystem.cs" />
     <Compile Include="Systems\VesselDecoupleSys\VesselDecouple.cs" />

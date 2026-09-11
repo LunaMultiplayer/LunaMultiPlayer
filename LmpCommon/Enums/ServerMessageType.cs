@@ -22,5 +22,6 @@
         Facility = 18,
         Screenshot = 19,
         ShareProgress = 20,
+        Waypoint = 21,
     }
 }

@@ -11,6 +11,7 @@ using Server.Server;
 using Server.Settings;
 using Server.Settings.Structures;
 using Server.System;
+using Server.System.Waypoint;
 using Server.Upnp;
 using Server.Utilities;
 using Server.Web;
@@ -193,6 +194,8 @@ namespace Server
         {
             LunaLog.Debug("Loading groups...");
             GroupSystem.LoadGroups();
+            LunaLog.Debug("Loading waypoints...");
+            WaypointSystem.LoadWaypoints();
             LunaLog.Debug("Loading settings...");
             SettingsHandler.LoadSettings();
             SettingsHandler.ValidateDifficultySettings();

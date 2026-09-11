@@ -1,6 +1,7 @@
 ﻿using ByteSizeLib;
 using Server.Log;
 using Server.System;
+using Server.System.Waypoint;
 using System;
 using System.IO;
 using System.Linq;
@@ -60,6 +61,8 @@ namespace Server.Context
                 FileHandler.FolderCreate(ScenarioSystem.ScenariosPath);
             if (!FileHandler.FolderExists(VesselStoreSystem.VesselsPath))
                 FileHandler.FolderCreate(VesselStoreSystem.VesselsPath);
+            if (!FileHandler.FolderExists(WaypointSystem.WaypointsPath))
+                FileHandler.FolderCreate(WaypointSystem.WaypointsPath);
         }
     }
 }
