@@ -44,21 +44,37 @@ namespace LmpClient.Extensions
         /// </summary>
         public static void AdvanceShipPosition(this Vessel vessel, double time)
         {
-            //If we advance the orbit when flying, we risk going inside the terrain as the orbit goes deep down the planet!
-            if (vessel.situation <= Vessel.Situations.FLYING) return;
+            var throttle = vessel.ctrlState.mainThrottle;
 
-            var obtPos = vessel.orbit.getRelativePositionAtUT(time);
-            var obtVel = vessel.orbit.getOrbitalVelocityAtUT(time);
+            if (vessel.situation <= Vessel.Situations.FLYING)
+            {
+                // Account for the rotation of the main body
+                /*
+                vessel.SetPosition(vessel.mainBody.rotation * (vessel.CurrentCoM - vessel.mainBody.position));
+                vessel.SetRotation(vessel.mainBody.rotation * (QuaternionD)vessel.transform.rotation);
+                vessel.SetWorldVelocity(vessel.mainBody.rotation * vessel.srf_velocity);
+                */
+            }
+            else
+            {
+                // Update the vessel with it's orbit.
+                // We should only do this while the vessel is in space.
+                var obtPos = vessel.orbit.getRelativePositionAtUT(time);
+                var obtVel = vessel.orbit.getOrbitalVelocityAtUT(time);
 
-            if (!vessel.packed)
-                vessel.GoOnRails();
+                if (!vessel.packed)
+                    vessel.GoOnRails();
 
-            vessel.orbit.UpdateFromStateVectors(obtPos, obtVel, vessel.mainBody, time);
-            vessel.orbitDriver.updateFromParameters();
+                vessel.orbit.UpdateFromStateVectors(obtPos, obtVel, vessel.mainBody, time);
+                vessel.orbitDriver.updateFromParameters();
 
-            OrbitPhysicsManager.CheckReferenceFrame();
-            OrbitPhysicsManager.HoldVesselUnpack(10);
+                OrbitPhysicsManager.CheckReferenceFrame();
+                OrbitPhysicsManager.HoldVesselUnpack(10);
+            }
             vessel.IgnoreGForces(20);
+
+            // Fix for throttle reset
+            vessel.ctrlState.mainThrottle = throttle;
         }
 
         /// <summary>

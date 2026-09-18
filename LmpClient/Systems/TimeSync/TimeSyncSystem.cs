@@ -60,15 +60,15 @@ namespace LmpClient.Systems.TimeSync
         /// <summary>
         /// Minimum speed that the game can go
         /// </summary>
-        private const float MinPhysicsClockRate = 0.85f;
+        private const float MinPhysicsClockRate = 0.60f;
         /// <summary>
         /// Max speed that the game can go. If you put this number too high the game will lag a lot.
         /// </summary>
-        private const float MaxPhysicsClockRate = 1.20f;
+        private const float MaxPhysicsClockRate = 1.60f;
         /// <summary>
         /// Limit at which we won't fix the time with the GAME timescale
         /// </summary>
-        private const int MaxPhysicsClockMsError = 3500;
+        private const int MaxPhysicsClockMsError = 5000;
 
         #endregion
 
@@ -153,19 +153,30 @@ namespace LmpClient.Systems.TimeSync
                 var targetTime = WarpSystem.Singleton.CurrentSubspaceTime;
                 var currentError = TimeUtil.SecondsToMilliseconds(CurrentErrorSec);
 
+                // Restore normal physics speed
                 if (Math.Abs(currentError) < MinPhysicsClockMsError)
                 {
                     Time.timeScale = 1;
                 }
+
                 if (Math.Abs(currentError) > MinPhysicsClockMsError && Math.Abs(currentError) < MaxPhysicsClockMsError)
                 {
-                    //Time error is not so big so we can fix it adjusting the physics time
+                    // Increase/decrease physics time warp rate to try and correct the error.
                     SkewClock();
                 }
                 else if (Math.Abs(currentError) > MaxPhysicsClockMsError)
                 {
-                    LunaLog.LogWarning($"[LMP] Adjusted time from: {UniversalTime} to: {targetTime} due to error: {currentError}");
-                    SetGameTime(targetTime);
+                    if (WarpSystem.Singleton.GetSubspacePlayers(WarpSystem.Singleton.CurrentSubspace).Length == 1)
+                    {
+                        // Because we're the only one in our subspace, we can change the subspace to match our time by recreating it.
+                        WarpSystem.Singleton.RequestNewSubspace(false);
+                    }
+                    else
+                    {
+                        // Rubberband our time to the subspace.
+                        LunaLog.LogWarning($"[LMP] Adjusted time from {UniversalTime} to {targetTime}, due to error {CurrentErrorSec}.");
+                        SetGameTime(targetTime);
+                    }
                 }
             }
 
