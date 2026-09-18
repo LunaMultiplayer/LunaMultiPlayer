@@ -28,6 +28,7 @@ namespace Server.Context
         public static string DataDirectory = AppDomain.CurrentDomain.BaseDirectory;
         public static string UniverseDirectory => Path.Combine(DataDirectory, "Universe");
         public static string ConfigDirectory => Path.Combine(DataDirectory, "Config");
+        public static string BackupDirectory = Path.Combine(DataDirectory, "Backups");
         public static string ModFilePath => Path.Combine(ConfigDirectory, "LMPModControl.xml");
         public static string OldModFilePath => Path.Combine(DataDirectory, "LMPModControl.xml");
 

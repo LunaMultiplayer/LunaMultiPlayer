@@ -26,5 +26,6 @@ namespace Server.Web.Structures.Settings
         public int NumberOfComets => GeneralSettings.SettingsStore.NumberOfComets;
         public string TerrainQuality => GeneralSettings.SettingsStore.TerrainQuality.ToString();
         public float SafetyBubbleDistance => GeneralSettings.SettingsStore.SafetyBubbleDistance;
+        public int MaxBackups => GeneralSettings.SettingsStore.MaxBackups;
     }
 }

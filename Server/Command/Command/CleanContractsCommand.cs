@@ -80,8 +80,8 @@ namespace Server.Command.Command
                 return true;
             }
 
-            LunaLog.Normal($"[CleanContracts]: Moved {moved} contract(s) to CONTRACTS_FINISHED. Running backup to persist...");
-            BackupSystem.RunBackup();
+            LunaLog.Normal($"[CleanContracts]: Moved {moved} contract(s) to CONTRACTS_FINISHED. Running save to persist...");
+            BackupSystem.RunSave();
             LunaLog.Normal("[CleanContracts]: Done.");
             return true;
         }

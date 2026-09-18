@@ -59,10 +59,10 @@ namespace Server.Client
                 }
             }
 
-            //As this is the last client that is connected to the server, run a safety backup once they disconnect
+            //As this is the last client that is connected to the server, run a safety save once they disconnect
             if (ServerContext.Clients.Count == 0)
             {
-                BackupSystem.RunBackup();
+                BackupSystem.RunSave();
             }
         }
     }
