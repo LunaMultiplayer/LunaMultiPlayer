@@ -59,6 +59,9 @@ namespace Server.Client
                 }
             }
 
+            //Pause the universe if this was the last player on the server and the setting is enabled
+            PauseWhenEmptySystem.HandlePlayerDisconnected(client);
+
             //As this is the last client that is connected to the server, run a safety backup once they disconnect
             if (ServerContext.Clients.Count == 0)
             {

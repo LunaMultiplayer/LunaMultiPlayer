@@ -35,6 +35,7 @@ namespace Server.System
                 client.LmpVersion = $"{data.MajorVersion}.{data.MinorVersion}.{data.BuildVersion}";
                 client.Authenticated = true;
 
+                PauseWhenEmptySystem.HandlePlayerAuthenticated();
                 LmpPluginHandler.FireOnClientAuthenticated(client);
 
                 LunaLog.Normal($"Client {data.PlayerName} ({data.UniqueIdentifier}) handshake successful, LMP Version: {client.LmpVersion}, KSP Version: {client.KspVersion}");

@@ -28,6 +28,12 @@ namespace Server.System
             FileHandler.WriteToFile(StartTimeFile, content);
         }
 
+        public static void ShiftStartTime(TimeSpan duration)
+        {
+            TimeContext.StartTime += duration;
+            BackupStartTime();
+        }
+
         #region Private methods
 
         private static void LoadSavedStartTime()

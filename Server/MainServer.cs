@@ -130,6 +130,7 @@ namespace Server
                 LmpPluginHandler.LoadPlugins();
                 WarpSystem.Reset();
                 TimeSystem.Reset();
+                PauseWhenEmptySystem.Reset();
 
                 LunaLog.Normal($"Starting '{GeneralSettings.SettingsStore.ServerName}' on Address {ConnectionSettings.SettingsStore.ListenAddress} Port {ConnectionSettings.SettingsStore.Port}... ");
 

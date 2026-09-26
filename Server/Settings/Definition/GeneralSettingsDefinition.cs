@@ -80,5 +80,8 @@ namespace Server.Settings.Definition
 
         [XmlComment(Value = "Max number of parts that a vessel can have when spawning")]
         public int MaxVesselParts { get; set; } = 200;
+
+        [XmlComment(Value = "Pause the universe time while nobody is playing on the server.")]
+        public bool PauseWhenEmpty { get; set; } = false;
     }
 }
