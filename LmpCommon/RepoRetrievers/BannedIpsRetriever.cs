@@ -5,8 +5,9 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
+
+#pragma warning disable SYSLIB0014
 
 namespace LmpCommon.RepoRetrievers
 {
@@ -74,12 +75,9 @@ namespace LmpCommon.RepoRetrievers
 
                 try
                 {
-                    var handler = new HttpClientHandler();
-                    handler.ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, certChain, policyErrors) =>
-                        GithubCertification.MyRemoteCertificateValidationCallback(null, cert, certChain, policyErrors);
-
-                    using (var client = new HttpClient(handler))
-                    using (var stream = client.GetStreamAsync(RepoConstants.BannedIpListUrl).Result)
+                    ServicePointManager.ServerCertificateValidationCallback = GithubCertification.MyRemoteCertificateValidationCallback;
+                    using (var client = new WebClient())
+                    using (var stream = client.OpenRead(RepoConstants.BannedIpListUrl))
                     using (var reader = new StreamReader(stream))
                     {
                         var content = reader.ReadToEnd();
