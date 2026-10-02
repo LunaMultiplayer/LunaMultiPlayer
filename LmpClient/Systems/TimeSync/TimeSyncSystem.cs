@@ -16,7 +16,9 @@ namespace LmpClient.Systems.TimeSync
     /// <summary>
     /// This system syncs the game time with the UTC time.
     /// Your game time may shift, for example when you computer hangs or there are lots of vessels etc.
-    /// Those "micro hangs" should be corrected so all the players are in the same time as the UTC
+    /// Those "micro hangs" should be corrected so all the players are in the same time as the UTC.
+    /// The correction is done by warping the game speed (running slightly faster or slower) so the sync
+    /// is eased in smoothly and the physics is never reset. Only for huge errors we jump as a last resort
     /// </summary>
     public class TimeSyncSystem : System<TimeSyncSystem>
     {
@@ -68,7 +70,11 @@ namespace LmpClient.Systems.TimeSync
         /// <summary>
         /// Limit at which we won't fix the time with the GAME timescale
         /// </summary>
-        private const int MaxPhysicsClockMsError = 3500;
+        private const int MaxPhysicsClockMsError = 5000;
+        /// <summary>
+        /// Maximum change of the game speed on every fixed update
+        /// </summary>
+        private const float MaxTimeScaleChangePerFixedUpdate = 0.01f;
 
         #endregion
 
@@ -132,6 +138,7 @@ namespace LmpClient.Systems.TimeSync
 
             SpectateEvent.onStartSpectating.Remove(TimerSyncEvents.OnStartSpectating);
             ServerStartTime = 0;
+            Time.timeScale = 1;
         }
 
         #endregion
@@ -140,7 +147,7 @@ namespace LmpClient.Systems.TimeSync
 
         /// <summary>
         /// Routine that checks our time against the server time and adjust it if needed.
-        /// We only adjust the GAME time. And we will only do if the time error is between <see cref="MinPhysicsClockMsError"/> and <see cref="MaxPhysicsClockMsError"/>
+        /// We only adjust the GAME speed and we will only do it if the time error is between <see cref="MinPhysicsClockMsError"/> and <see cref="MaxPhysicsClockMsError"/>
         /// We cannot do it with more than <see cref="MaxPhysicsClockMsError"/> as then we would need a lot of time to catch up with the time error.
         /// For greater errors we just fix the time with the StepClock
         /// </summary>
@@ -153,20 +160,24 @@ namespace LmpClient.Systems.TimeSync
                 var targetTime = WarpSystem.Singleton.CurrentSubspaceTime;
                 var currentError = TimeUtil.SecondsToMilliseconds(CurrentErrorSec);
 
-                if (Math.Abs(currentError) < MinPhysicsClockMsError)
+                if (Math.Abs(currentError) < MaxPhysicsClockMsError)
                 {
-                    Time.timeScale = 1;
+                    //Time error is not so big so we fix it by warping the game speed: the sync is eased in
+                    //smoothly and the physics is never reset (a hard jump to the target time makes the physics shake)
+                    SkewClock(currentError);
                 }
-                if (Math.Abs(currentError) > MinPhysicsClockMsError && Math.Abs(currentError) < MaxPhysicsClockMsError)
-                {
-                    //Time error is not so big so we can fix it adjusting the physics time
-                    SkewClock();
-                }
-                else if (Math.Abs(currentError) > MaxPhysicsClockMsError)
+                else
                 {
                     LunaLog.LogWarning($"[LMP] Adjusted time from: {UniversalTime} to: {targetTime} due to error: {currentError}");
                     SetGameTime(targetTime);
+                    Time.timeScale = 1;
                 }
+            }
+            else
+            {
+                //While warping (KSP time warp) or while we cannot sync, ease the game speed back to normal
+                //so our clock skew doesn't interfere with the KSP warp rates
+                EaseGameSpeedToNormal();
             }
 
             Profiler.EndSample();
@@ -234,14 +245,30 @@ namespace LmpClient.Systems.TimeSync
         #region Private methods
 
         /// <summary>
-        /// Here we adjust the GAME timescale and make the game goes faster or slower
+        /// Here we adjust the GAME timescale and make the game go faster or slower
         /// </summary>
-        private static void SkewClock()
+        private static void SkewClock(double currentErrorMs)
         {
-            var timeWarpRate = (float)Math.Pow(2, -CurrentErrorSec);
+            float targetRate;
+            if (Math.Abs(currentErrorMs) < MinPhysicsClockMsError)
+            {
+                targetRate = 1f;
+            }
+            else
+            {
+                targetRate = Mathf.Clamp((float)Math.Pow(2, -TimeUtil.MillisecondsToSeconds(currentErrorMs)), MinPhysicsClockRate, MaxPhysicsClockRate);
+            }
 
-            //Set the physics warp rate between the max and min allowed
-            Time.timeScale = Mathf.Clamp(timeWarpRate, MinPhysicsClockRate, MaxPhysicsClockRate);
+            Time.timeScale = Mathf.MoveTowards(Time.timeScale, targetRate, MaxTimeScaleChangePerFixedUpdate / 2);
+        }
+
+        /// <summary>
+        /// Eases the game speed back to normal without an instant change of the time scale
+        /// </summary>
+        private static void EaseGameSpeedToNormal()
+        {
+            if (!Mathf.Approximately(Time.timeScale, 1f))
+                Time.timeScale = Mathf.MoveTowards(Time.timeScale, 1f, MaxTimeScaleChangePerFixedUpdate);
         }
 
         #endregion
