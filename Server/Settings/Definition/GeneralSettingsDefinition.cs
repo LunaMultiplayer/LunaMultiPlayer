@@ -80,5 +80,8 @@ namespace Server.Settings.Definition
 
         [XmlComment(Value = "Max number of parts that a vessel can have when spawning")]
         public int MaxVesselParts { get; set; } = 200;
+
+        [XmlComment(Value = "Remove the craft library of a player from the server when he disconnects. When the player rejoins, his client uploads its crafts again automatically")]
+        public bool StoreOnlyOnlinePlayersCrafts { get; set; } = false;
     }
 }

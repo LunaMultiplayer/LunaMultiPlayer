@@ -270,7 +270,6 @@
     <Compile Include="Localization\LocalizationContainer.cs" />
     <Compile Include="Localization\Structures\ChatWindowText.cs" />
     <Compile Include="Localization\Structures\ConnectionWindowText.cs" />
-    <Compile Include="Localization\Structures\CraftLibraryWindowText.cs" />
     <Compile Include="Localization\Structures\DisclaimerDialogText.cs" />
     <Compile Include="Localization\Structures\InstallDialogText.cs" />
     <Compile Include="Localization\Structures\ScreenText.cs" />
@@ -311,6 +310,7 @@
     <Compile Include="Systems\ShareFunds\ShareFundsMessageHandler.cs" />
     <Compile Include="Systems\ShareFunds\ShareFundsMessageSender.cs" />
     <Compile Include="Systems\ShareFunds\ShareFundsSystem.cs" />
+    <Compile Include="Systems\CraftLibrary\CraftLibraryEditorRefresh.cs" />
     <Compile Include="Systems\CraftLibrary\CraftLibraryMessageHandler.cs" />
     <Compile Include="Systems\CraftLibrary\CraftLibraryMessageSender.cs" />
     <Compile Include="Systems\CraftLibrary\CraftLibraryStructures.cs" />
@@ -540,8 +540,6 @@
     <Compile Include="Windows\Chat\ChatDrawer.cs" />
     <Compile Include="Windows\Connection\ConnectionDrawer.cs" />
     <Compile Include="Windows\Connection\ConnectionWindow.cs" />
-    <Compile Include="Windows\CraftLibrary\CraftLibraryDrawer.cs" />
-    <Compile Include="Windows\CraftLibrary\CraftLibraryWindow.cs" />
     <Compile Include="Systems\Flag\FlagMessageHandler.cs" />
     <Compile Include="Systems\Flag\FlagStructures.cs" />
     <Compile Include="Systems\Lock\LockMessageHandler.cs" />
@@ -603,7 +601,6 @@
     <Content Include="Localization\XML\Danish\ChatWindowText.xml" />
     <Content Include="Localization\XML\Danish\CompatibleDialogText.xml" />
     <Content Include="Localization\XML\Danish\ConnectionWindowText.xml" />
-    <Content Include="Localization\XML\Danish\CraftLibraryWindowText.xml" />
     <Content Include="Localization\XML\Danish\DisclaimerDialogText.xml" />
     <Content Include="Localization\XML\Danish\InstallDialogText.xml" />
     <Content Include="Localization\XML\Danish\ModWindowText.xml" />
@@ -620,7 +617,6 @@
     <Content Include="Localization\XML\Dutch\ChatWindowText.xml" />
     <Content Include="Localization\XML\Dutch\CompatibleDialogText.xml" />
     <Content Include="Localization\XML\Dutch\ConnectionWindowText.xml" />
-    <Content Include="Localization\XML\Dutch\CraftLibraryWindowText.xml" />
     <Content Include="Localization\XML\Dutch\DisclaimerDialogText.xml" />
     <Content Include="Localization\XML\Dutch\InstallDialogText.xml" />
     <Content Include="Localization\XML\Dutch\ModWindowText.xml" />
@@ -637,7 +633,6 @@
     <Content Include="Localization\XML\English\ChatWindowText.xml" />
     <Content Include="Localization\XML\English\CompatibleDialogText.xml" />
     <Content Include="Localization\XML\English\ConnectionWindowText.xml" />
-    <Content Include="Localization\XML\English\CraftLibraryWindowText.xml" />
     <Content Include="Localization\XML\English\DisclaimerDialogText.xml" />
     <Content Include="Localization\XML\English\InstallDialogText.xml" />
     <Content Include="Localization\XML\English\ModWindowText.xml" />
@@ -654,7 +649,6 @@
     <Content Include="Localization\XML\French\ChatWindowText.xml" />
     <Content Include="Localization\XML\French\CompatibleDialogText.xml" />
     <Content Include="Localization\XML\French\ConnectionWindowText.xml" />
-    <Content Include="Localization\XML\French\CraftLibraryWindowText.xml" />
     <Content Include="Localization\XML\French\DisclaimerDialogText.xml" />
     <Content Include="Localization\XML\French\InstallDialogText.xml" />
     <Content Include="Localization\XML\French\ModWindowText.xml" />
@@ -671,7 +665,6 @@
     <Content Include="Localization\XML\German\ChatWindowText.xml" />
     <Content Include="Localization\XML\German\CompatibleDialogText.xml" />
     <Content Include="Localization\XML\German\ConnectionWindowText.xml" />
-    <Content Include="Localization\XML\German\CraftLibraryWindowText.xml" />
     <Content Include="Localization\XML\German\DisclaimerDialogText.xml" />
     <Content Include="Localization\XML\German\InstallDialogText.xml" />
     <Content Include="Localization\XML\German\ModWindowText.xml" />
@@ -688,7 +681,6 @@
     <Content Include="Localization\XML\Italian\ChatWindowText.xml" />
     <Content Include="Localization\XML\Italian\CompatibleDialogText.xml" />
     <Content Include="Localization\XML\Italian\ConnectionWindowText.xml" />
-    <Content Include="Localization\XML\Italian\CraftLibraryWindowText.xml" />
     <Content Include="Localization\XML\Italian\DisclaimerDialogText.xml" />
     <Content Include="Localization\XML\Italian\InstallDialogText.xml" />
     <Content Include="Localization\XML\Italian\ModWindowText.xml" />
@@ -705,7 +697,6 @@
     <Content Include="Localization\XML\Japanese\ChatWindowText.xml" />
     <Content Include="Localization\XML\Japanese\CompatibleDialogText.xml" />
     <Content Include="Localization\XML\Japanese\ConnectionWindowText.xml" />
-    <Content Include="Localization\XML\Japanese\CraftLibraryWindowText.xml" />
     <Content Include="Localization\XML\Japanese\DisclaimerDialogText.xml" />
     <Content Include="Localization\XML\Japanese\InstallDialogText.xml" />
     <Content Include="Localization\XML\Japanese\ModWindowText.xml" />
@@ -722,7 +713,6 @@
     <Content Include="Localization\XML\Polish\ChatWindowText.xml" />
     <Content Include="Localization\XML\Polish\CompatibleDialogText.xml" />
     <Content Include="Localization\XML\Polish\ConnectionWindowText.xml" />
-    <Content Include="Localization\XML\Polish\CraftLibraryWindowText.xml" />
     <Content Include="Localization\XML\Polish\DisclaimerDialogText.xml" />
     <Content Include="Localization\XML\Polish\InstallDialogText.xml" />
     <Content Include="Localization\XML\Polish\ModWindowText.xml" />
@@ -739,7 +729,6 @@
     <Content Include="Localization\XML\Russian\ChatWindowText.xml" />
     <Content Include="Localization\XML\Russian\CompatibleDialogText.xml" />
     <Content Include="Localization\XML\Russian\ConnectionWindowText.xml" />
-    <Content Include="Localization\XML\Russian\CraftLibraryWindowText.xml" />
     <Content Include="Localization\XML\Russian\DisclaimerDialogText.xml" />
     <Content Include="Localization\XML\Russian\InstallDialogText.xml" />
     <Content Include="Localization\XML\Russian\ModWindowText.xml" />
@@ -756,7 +745,6 @@
     <Content Include="Localization\XML\Simplified Chinese\ChatWindowText.xml" />
     <Content Include="Localization\XML\Simplified Chinese\CompatibleDialogText.xml" />
     <Content Include="Localization\XML\Simplified Chinese\ConnectionWindowText.xml" />
-    <Content Include="Localization\XML\Simplified Chinese\CraftLibraryWindowText.xml" />
     <Content Include="Localization\XML\Simplified Chinese\DisclaimerDialogText.xml" />
     <Content Include="Localization\XML\Simplified Chinese\InstallDialogText.xml" />
     <Content Include="Localization\XML\Simplified Chinese\ModWindowText.xml" />
@@ -773,7 +761,6 @@
     <Content Include="Localization\XML\Spanish\ChatWindowText.xml" />
     <Content Include="Localization\XML\Spanish\CompatibleDialogText.xml" />
     <Content Include="Localization\XML\Spanish\ConnectionWindowText.xml" />
-    <Content Include="Localization\XML\Spanish\CraftLibraryWindowText.xml" />
     <Content Include="Localization\XML\Spanish\DisclaimerDialogText.xml" />
     <Content Include="Localization\XML\Spanish\InstallDialogText.xml" />
     <Content Include="Localization\XML\Spanish\ModWindowText.xml" />
@@ -790,7 +777,6 @@
     <Content Include="Localization\XML\Swedish\ChatWindowText.xml" />
     <Content Include="Localization\XML\Swedish\CompatibleDialogText.xml" />
     <Content Include="Localization\XML\Swedish\ConnectionWindowText.xml" />
-    <Content Include="Localization\XML\Swedish\CraftLibraryWindowText.xml" />
     <Content Include="Localization\XML\Swedish\DisclaimerDialogText.xml" />
     <Content Include="Localization\XML\Swedish\InstallDialogText.xml" />
     <Content Include="Localization\XML\Swedish\ModWindowText.xml" />

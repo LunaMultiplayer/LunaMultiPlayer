@@ -1,10 +1,10 @@
-﻿using System;
-using LmpClient.Base;
+﻿using LmpClient.Base;
 using LmpClient.Base.Interface;
 using LmpClient.Network;
 using LmpCommon.Message.Client;
 using LmpCommon.Message.Data.CraftLibrary;
 using LmpCommon.Message.Interface;
+using System;
 
 namespace LmpClient.Systems.CraftLibrary
 {
@@ -12,7 +12,7 @@ namespace LmpClient.Systems.CraftLibrary
     {
         public void SendMessage(IMessageData msg)
         {
-            TaskFactory.StartNew(() => NetworkSender.QueueOutgoingMessage(MessageFactory.CreateNew<CraftLibraryCliMsg>(msg)));
+            NetworkSender.QueueOutgoingMessage(MessageFactory.CreateNew<CraftLibraryCliMsg>(msg));
         }
 
         public void SendCraftMsg(CraftEntry craft)
@@ -20,6 +20,7 @@ namespace LmpClient.Systems.CraftLibrary
             var msgData = NetworkMain.CliMsgFactory.CreateNewMessageData<CraftLibraryDataMsgData>();
             msgData.Craft.FolderName = craft.FolderName;
             msgData.Craft.CraftName = craft.CraftName;
+            msgData.Craft.CraftFolder = craft.CraftFolder ?? string.Empty;
             msgData.Craft.CraftType = craft.CraftType;
 
             msgData.Craft.NumBytes = craft.CraftNumBytes;
@@ -32,37 +33,20 @@ namespace LmpClient.Systems.CraftLibrary
             SendMessage(msgData);
         }
 
-        public void SendRequestFoldersMsg()
+        public void SendCraftDeleteMsg(CraftEntry craft)
         {
-            var msgData = NetworkMain.CliMsgFactory.CreateNewMessageData<CraftLibraryFoldersRequestMsgData>();
-            SendMessage(msgData);
-        }
-
-        public void SendRequestCraftListMsg(string folderName)
-        {
-            var msgData = NetworkMain.CliMsgFactory.CreateNewMessageData<CraftLibraryListRequestMsgData>();
-            msgData.FolderName = folderName;
-
-            SendMessage(msgData);
-        }
-
-        public void SendRequestCraftMsg(CraftBasicEntry craft)
-        {
-            var msgData = NetworkMain.CliMsgFactory.CreateNewMessageData<CraftLibraryDownloadRequestMsgData>();
-            msgData.CraftRequested.FolderName = craft.FolderName;
-            msgData.CraftRequested.CraftName = craft.CraftName;
-            msgData.CraftRequested.CraftType = craft.CraftType;
+            var msgData = NetworkMain.CliMsgFactory.CreateNewMessageData<CraftLibraryDeleteMsgData>();
+            msgData.FolderName = craft.FolderName;
+            msgData.CraftName = craft.CraftName;
+            msgData.CraftFolder = craft.CraftFolder ?? string.Empty;
+            msgData.CraftType = craft.CraftType;
 
             SendMessage(msgData);
         }
 
-        public void SendDeleteCraftMsg(CraftBasicEntry craft)
+        public void SendSyncRequestMsg()
         {
-            var msgData = NetworkMain.CliMsgFactory.CreateNewMessageData<CraftLibraryDeleteRequestMsgData>();
-            msgData.CraftToDelete.FolderName = craft.FolderName;
-            msgData.CraftToDelete.CraftName = craft.CraftName;
-            msgData.CraftToDelete.CraftType = craft.CraftType;
-
+            var msgData = NetworkMain.CliMsgFactory.CreateNewMessageData<CraftLibrarySyncRequestMsgData>();
             SendMessage(msgData);
         }
     }

@@ -1,5 +1,4 @@
 ﻿using LmpClient.Systems.Chat;
-using LmpClient.Systems.CraftLibrary;
 using LmpClient.Systems.PlayerColorSys;
 using LmpClient.Systems.Screenshot;
 using LmpClient.Systems.SettingsSys;
@@ -7,7 +6,6 @@ using LmpClient.Systems.Status;
 using LmpClient.Systems.Warp;
 using LmpClient.Windows.Admin;
 using LmpClient.Windows.Chat;
-using LmpClient.Windows.CraftLibrary;
 using LmpClient.Windows.Debug;
 using LmpClient.Windows.Options;
 using LmpClient.Windows.Screenshots;
@@ -51,8 +49,6 @@ namespace LmpClient.Windows.Status
 
             ChatWindow.Singleton.Display = GUILayout.Toggle(ChatWindow.Singleton.Display,
                 ChatSystem.Singleton.NewMessageReceived && Flash ? ChatRedIcon : ChatIcon, ToggleButtonStyle);
-            CraftLibraryWindow.Singleton.Display = GUILayout.Toggle(CraftLibraryWindow.Singleton.Display,
-                CraftLibrarySystem.Singleton.NewContent && Flash ? RocketRedIcon : RocketIcon, ToggleButtonStyle);
             ScreenshotsWindow.Singleton.Display = GUILayout.Toggle(ScreenshotsWindow.Singleton.Display,
                 ScreenshotSystem.Singleton.NewContent && Flash ? CameraRedIcon : CameraIcon, ToggleButtonStyle);
 

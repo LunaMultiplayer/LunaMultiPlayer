@@ -19,11 +19,9 @@ namespace LmpCommon.Message.Client
         /// <inheritdoc />
         protected override Dictionary<ushort, Type> SubTypeDictionary { get; } = new Dictionary<ushort, Type>
         {
-            [(ushort)CraftMessageType.FoldersRequest] = typeof(CraftLibraryFoldersRequestMsgData),
-            [(ushort)CraftMessageType.ListRequest] = typeof(CraftLibraryListRequestMsgData),
-            [(ushort)CraftMessageType.DownloadRequest] = typeof(CraftLibraryDownloadRequestMsgData),
-            [(ushort)CraftMessageType.DeleteRequest] = typeof(CraftLibraryDeleteRequestMsgData),
-            [(ushort)CraftMessageType.CraftData] = typeof(CraftLibraryDataMsgData)
+            [(ushort)CraftMessageType.SyncRequest] = typeof(CraftLibrarySyncRequestMsgData),
+            [(ushort)CraftMessageType.CraftData] = typeof(CraftLibraryDataMsgData),
+            [(ushort)CraftMessageType.CraftDelete] = typeof(CraftLibraryDeleteMsgData)
         };
 
         public override ClientMessageType MessageType => ClientMessageType.CraftLibrary;

@@ -67,7 +67,6 @@ namespace LmpCommon.Message.Data.Settings
         public int MinScreenshotIntervalMs;
         public int MaxScreenshotWidth;
         public int MaxScreenshotHeight;
-        public int MinCraftLibraryRequestIntervalMs;
         public bool PrintMotdInChat;
 
         public override string ClassName { get; } = nameof(SettingsReplyMsgData);
@@ -132,7 +131,6 @@ namespace LmpCommon.Message.Data.Settings
             lidgrenMsg.Write(MinScreenshotIntervalMs);
             lidgrenMsg.Write(MaxScreenshotWidth);
             lidgrenMsg.Write(MaxScreenshotHeight);
-            lidgrenMsg.Write(MinCraftLibraryRequestIntervalMs);
             lidgrenMsg.Write(PrintMotdInChat);
         }
 
@@ -196,14 +194,13 @@ namespace LmpCommon.Message.Data.Settings
             MinScreenshotIntervalMs = lidgrenMsg.ReadInt32();
             MaxScreenshotWidth = lidgrenMsg.ReadInt32();
             MaxScreenshotHeight = lidgrenMsg.ReadInt32();
-            MinCraftLibraryRequestIntervalMs = lidgrenMsg.ReadInt32();
             PrintMotdInChat = lidgrenMsg.ReadBoolean();
         }
 
         internal override int InternalGetMessageSize()
         {
             return base.InternalGetMessageSize() + sizeof(WarpMode) + sizeof(GameMode) + sizeof(TerrainQuality) + sizeof(GameDifficulty) +
-                sizeof(bool) * 24 + sizeof(int) * 9 + sizeof(float) * 19 + ConsoleIdentifier.GetByteCount();
+                sizeof(bool) * 24 + sizeof(int) * 8 + sizeof(float) * 19 + ConsoleIdentifier.GetByteCount();
         }
     }
 }

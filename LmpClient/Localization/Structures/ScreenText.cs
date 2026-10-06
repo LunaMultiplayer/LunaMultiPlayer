@@ -4,6 +4,15 @@
     {
         public string CraftUploaded { get; set; } = "Craft uploaded!";
         public string CraftSaved { get; set; } = "Craft saved!";
+        public string CraftsUploading { get; set; } = "Uploading {0} crafts";
+        public string CraftsUploaded { get; set; } = "Uploaded {0} crafts";
+        public string CraftsReceived { get; set; } = "Received {0} crafts";
+        public string CraftDeleted { get; set; } = "Craft deleted!";
+        public string CraftPermissionDenied { get; set; } = "You don't have permission to modify other people's crafts!";
+        public string CraftFolderPermissionDenied { get; set; } = "You don't have permission to create folders outside your own craft folder!";
+        public string CraftOutsideFolderWarning { get; set; } = "You can only save vehicles in your own craft folder! The vehicle was removed.";
+        public string CraftNotShared { get; set; } = "This vehicle cannot be shared: {0}.";
+        public string CraftLibrarySynced { get; set; } = "Craft library synchronized, {0} crafts received";
         public string ModFileGenerated { get; set; } = "LMPModControl.xml file generated in your KSP folder";
         public string Disconected { get; set; } = "You have been disconnected!";
         public string Spectating { get; set; } = "This vessel is being controlled by";
@@ -16,7 +25,6 @@
         public string WaitingSubspace { get; set; } = "Cannot warp, waiting subspace id from the server";
         public string CannotWarpWhileSpectating { get; set; } = "Cannot warp while spectating";
         public string ScreenshotInterval { get; set; } = "Interval between screenshots is $1 seconds. Cannot upload the screenshot at this moment";
-        public string CraftLibraryInterval { get; set; } = "Interval between craft library requests is $1 seconds. Cannot process the request at this moment";
         public string ScreenshotTaken { get; set; } = "Screenshot uploaded!";
         public string ImageSaved { get; set; } = "Image saved to GameData/LunaMultiplayer/Screenshots";
         public string IncreasedInterpolationOffset { get; set; } = "Warning! Your interpolation offset has been increased as it was too low for this server";

@@ -17,7 +17,6 @@ namespace LmpClient.Localization
         public static BannedPartsResourcesWindowText BannedPartsResourcesWindowText = new BannedPartsResourcesWindowText();
         public static ChatWindowText ChatWindowText = new ChatWindowText();
         public static ConnectionWindowText ConnectionWindowText = new ConnectionWindowText();
-        public static CraftLibraryWindowText CraftLibraryWindowText = new CraftLibraryWindowText();
         public static ModWindowText ModWindowText = new ModWindowText();
         public static OptionsWindowText OptionsWindowText = new OptionsWindowText();
         public static ServerListWindowText ServerListWindowText = new ServerListWindowText();
@@ -78,7 +77,6 @@ namespace LmpClient.Localization
             LoadWindowTexts(language, ref BannedPartsResourcesWindowText);
             LoadWindowTexts(language, ref ChatWindowText);
             LoadWindowTexts(language, ref ConnectionWindowText);
-            LoadWindowTexts(language, ref CraftLibraryWindowText);
             LoadWindowTexts(language, ref ModWindowText);
             LoadWindowTexts(language, ref OptionsWindowText);
             LoadWindowTexts(language, ref ServerListWindowText);
@@ -110,7 +108,6 @@ namespace LmpClient.Localization
                 LunaXmlSerializer.WriteToXmlFile(BannedPartsResourcesWindowText, CommonUtil.CombinePaths(LocalizationFolder, language, $"{nameof(BannedPartsResourcesWindowText)}.xml"));
                 LunaXmlSerializer.WriteToXmlFile(ChatWindowText, CommonUtil.CombinePaths(LocalizationFolder, language, $"{nameof(ChatWindowText)}.xml"));
                 LunaXmlSerializer.WriteToXmlFile(ConnectionWindowText, CommonUtil.CombinePaths(LocalizationFolder, language, $"{nameof(ConnectionWindowText)}.xml"));
-                LunaXmlSerializer.WriteToXmlFile(CraftLibraryWindowText, CommonUtil.CombinePaths(LocalizationFolder, language, $"{nameof(CraftLibraryWindowText)}.xml"));
                 LunaXmlSerializer.WriteToXmlFile(ModWindowText, CommonUtil.CombinePaths(LocalizationFolder, language, $"{nameof(ModWindowText)}.xml"));
                 LunaXmlSerializer.WriteToXmlFile(OptionsWindowText, CommonUtil.CombinePaths(LocalizationFolder, language, $"{nameof(OptionsWindowText)}.xml"));
                 LunaXmlSerializer.WriteToXmlFile(ServerListWindowText, CommonUtil.CombinePaths(LocalizationFolder, language, $"{nameof(ServerListWindowText)}.xml"));

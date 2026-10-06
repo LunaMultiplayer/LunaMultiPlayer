@@ -201,11 +201,12 @@ namespace Server.System
         /// Thread safe folder delete method
         /// </summary>
         /// <param name="path">Path to the folder</param>
-        public static void FolderDelete(string path)
+        /// <param name="recursive">Also delete the files and subfolders inside the folder</param>
+        public static void FolderDelete(string path, bool recursive = false)
         {
             lock (GetLockSemaphore(path))
             {
-                Directory.Delete(path);
+                Directory.Delete(path, recursive);
             }
         }
 

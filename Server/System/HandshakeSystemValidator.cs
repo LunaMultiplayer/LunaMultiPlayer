@@ -1,4 +1,5 @@
-﻿using LmpCommon.Enums;
+﻿using LmpCommon.CraftLibrary;
+using LmpCommon.Enums;
 using Server.Client;
 using Server.Command.Command;
 using Server.Settings.Structures;
@@ -15,6 +16,12 @@ namespace Server.System
             if (string.IsNullOrEmpty(playerName))
             {
                 reason = "Username too short. Min chars: 1";
+                return false;
+            }
+
+            if (CraftLibraryOwnFolder.PlayerNameIsForbidden(playerName))
+            {
+                reason = "Player name forbidden";
                 return false;
             }
 
@@ -110,6 +117,18 @@ namespace Server.System
                     HandshakeSystemSender.SendHandshakeReply(client, HandshakeReply.InvalidPlayername, reason);
                     return false;
                 }
+            }
+            return true;
+        }
+
+        private bool CheckUsernameIsNotAnOwnFolder(ClientStructure client, string playerName, out string reason)
+        {
+            reason = string.Empty;
+            if (CraftLibraryOwnFolder.PlayerNameIsForbidden(playerName))
+            {
+                reason = "Player name forbidden";
+                HandshakeSystemSender.SendHandshakeReply(client, HandshakeReply.InvalidPlayername, reason);
+                return false;
             }
             return true;
         }

@@ -3,6 +3,15 @@
 <ScreenText xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <CraftUploaded>Craft uploaded!</CraftUploaded>
   <CraftSaved>Craft saved!</CraftSaved>
+  <CraftsUploading>Uploading {0} crafts</CraftsUploading>
+  <CraftsUploaded>Uploaded {0} crafts</CraftsUploaded>
+  <CraftsReceived>Received {0} crafts</CraftsReceived>
+  <CraftDeleted>Craft deleted!</CraftDeleted>
+  <CraftPermissionDenied>You don't have permission to modify other people's crafts!</CraftPermissionDenied>
+  <CraftFolderPermissionDenied>You don't have permission to create folders outside your own craft folder!</CraftFolderPermissionDenied>
+  <CraftOutsideFolderWarning>You can only save vehicles in your own craft folder! The vehicle was removed.</CraftOutsideFolderWarning>
+  <CraftNotShared>This vehicle cannot be shared: {0}.</CraftNotShared>
+  <CraftLibrarySynced>Craft library synchronized, {0} crafts received</CraftLibrarySynced>
   <ModFileGenerated>LMPModControl.xml file generated in your KSP folder</ModFileGenerated>
   <Disconected>You have been disconnected!</Disconected>
   <Spectating>This vessel is being controlled by</Spectating>

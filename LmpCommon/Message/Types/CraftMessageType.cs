@@ -2,14 +2,10 @@
 {
     public enum CraftMessageType
     {
-        FoldersRequest = 0,
-        FoldersReply = 1,
-        ListRequest = 2,
-        ListReply = 3,
-
-        DownloadRequest = 4,
-        DeleteRequest = 5,
-        CraftData = 6,
-        Notification = 7
+        //0 to 7 were used by the craft library protocol up to LMP 0.30
+        SyncRequest = 8,
+        CraftData = 9,
+        CraftDelete = 10,
+        SyncComplete = 11
     }
 }

@@ -40,6 +40,7 @@ namespace Server.Client
         public float SubspaceRate { get; set; } = 1f;
 
         public DateTime ConnectionTime { get; } = DateTime.UtcNow;
+        public int CraftLibraryTransferInProgress;
 
         public Task SendThread { get; }
 

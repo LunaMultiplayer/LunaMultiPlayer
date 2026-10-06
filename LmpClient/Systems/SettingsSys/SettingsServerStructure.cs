@@ -25,7 +25,6 @@ namespace LmpClient.Systems.SettingsSys
         public int MinScreenshotIntervalMs { get; set; }
         public int MaxScreenshotWidth { get; set; }
         public int MaxScreenshotHeight { get; set; }
-        public int MinCraftLibraryRequestIntervalMs { get; set; }
         public bool PrintMotdInChat { get; set; }
     }
 }

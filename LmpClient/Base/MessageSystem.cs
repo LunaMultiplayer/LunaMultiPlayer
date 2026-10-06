@@ -3,6 +3,7 @@ using LmpClient.Network;
 using LmpCommon.Message.Interface;
 using System;
 using System.Collections.Concurrent;
+using System.Threading.Tasks;
 
 namespace LmpClient.Base
 {
@@ -20,15 +21,26 @@ namespace LmpClient.Base
         public TS MessageSender { get; } = new TS();
         public TH MessageHandler { get; } = new TH();
 
+        /// <summary>
+        /// Tail of the chain handling the messages outside the Unity thread. A reliable ordered channel
+        /// arrives in order, and a later message can depend on an earlier one, so they are chained instead
+        /// of each running on its own task
+        /// </summary>
+        private Task _offThreadHandlingTail = Task.CompletedTask;
+
+        private readonly object _offThreadHandlingLock = new object();
+
         public virtual void EnqueueMessage(IServerMessageBase msg)
         {
             if (ProcessMessagesInUnityThread)
             {
                 MessageHandler.IncomingMessages.Enqueue(msg);
+                return;
             }
-            else
+
+            lock (_offThreadHandlingLock)
             {
-                TaskFactory.StartNew(() => HandleMessage(msg));
+                _offThreadHandlingTail = _offThreadHandlingTail.ContinueWith(_ => HandleMessage(msg), TaskScheduler.Default);
             }
         }
 
@@ -38,7 +50,14 @@ namespace LmpClient.Base
 
             //Clear the message queue on disabling
             if (ProcessMessagesInUnityThread)
+            {
                 MessageHandler.IncomingMessages = new ConcurrentQueue<IServerMessageBase>();
+                return;
+            }
+
+            //Release the chain so a new session does not queue behind the previous one
+            lock (_offThreadHandlingLock)
+                _offThreadHandlingTail = Task.CompletedTask;
         }
 
         protected override void OnEnabled()
