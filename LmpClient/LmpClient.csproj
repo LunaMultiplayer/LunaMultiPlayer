@@ -232,6 +232,7 @@
     <Compile Include="Harmony\QuickSaveLoad_QuickLoad.cs" />
     <Compile Include="Harmony\ProtoCrewMember_Die.cs" />
     <Compile Include="Harmony\ShipConstruction_FindVesselsLandedAt.cs" />
+    <Compile Include="Harmony\SpaceTracking_DeleteVessel.cs" />
     <Compile Include="Harmony\SpaceTracking_FlyVessel.cs" />
     <Compile Include="Harmony\SpaceTracking_SetVessel.cs" />
     <Compile Include="Harmony\Strategy_CanBeActivated.cs" />

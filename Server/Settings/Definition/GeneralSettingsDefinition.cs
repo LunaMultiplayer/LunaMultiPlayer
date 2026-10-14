@@ -34,6 +34,9 @@ namespace Server.Settings.Definition
         [XmlComment(Value = "Writes the server's MOTD (message of the day) in the chat of the user who joins")]
         public bool PrintMotdInChat { get; set; } = false;
 
+        [XmlComment(Value = "Allow players to terminate/delete vessels from the Tracking Station. Set to false to prevent accidental or deliberate deletion of persistent vessels.")]
+        public bool AllowVesselTermination { get; set; } = true;
+
         [XmlComment(Value = "Maximum amount of players that can join the server.")]
         public int MaxPlayers { get; set; } = 20;
 

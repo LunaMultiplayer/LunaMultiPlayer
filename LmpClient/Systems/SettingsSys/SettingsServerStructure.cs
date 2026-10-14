@@ -27,5 +27,6 @@ namespace LmpClient.Systems.SettingsSys
         public int MaxScreenshotHeight { get; set; }
         public int MinCraftLibraryRequestIntervalMs { get; set; }
         public bool PrintMotdInChat { get; set; }
+        public bool AllowVesselTermination { get; set; } = true;
     }
 }

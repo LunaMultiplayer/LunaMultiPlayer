@@ -37,6 +37,7 @@ namespace Server.Message
             msgData.MaxScreenshotHeight = ScreenshotSettings.SettingsStore.MaxScreenshotHeight;
             msgData.MinCraftLibraryRequestIntervalMs = CraftSettings.SettingsStore.MinCraftLibraryRequestIntervalMs;
             msgData.PrintMotdInChat = GeneralSettings.SettingsStore.PrintMotdInChat;
+            msgData.AllowVesselTermination = GeneralSettings.SettingsStore.AllowVesselTermination;
 
             if (GeneralSettings.SettingsStore.GameDifficulty == GameDifficulty.Custom && GameplaySettings.SettingsStore != null)
             {

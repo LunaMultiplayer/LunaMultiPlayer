@@ -11,6 +11,7 @@
         public string CheckParts { get; set; } = "If you use mod or DLC parts that other players don't have you won't be seen by them!";
         public string CannotRecover { get; set; } = "Cannot recover vessel, the vessel is not yours.";
         public string CannotTerminate { get; set; } = "Cannot terminate vessel, the vessel is not yours.";
+        public string TerminationDisabledByServer { get; set; } = "Vessel termination is disabled on this server. Vessels cannot be deleted from the Tracking Station.";
         public string SpectatingRemoved { get; set; } = "The vessel you were spectating was removed";
         public string WarpDisabled { get; set; } = "Cannot warp, warping is disabled on this server";
         public string WaitingSubspace { get; set; } = "Cannot warp, waiting subspace id from the server";
