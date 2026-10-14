@@ -37,8 +37,18 @@ namespace LmpMasterServer.Structure
 
         public void Update(MsRegisterServerMsgData msg, IPEndPoint externalEndpoint)
         {
-            InternalEndpoint = msg.InternalEndpoint;
-            InternalEndpoint6 = msg.InternalEndpoint6;
+            if (msg.InternalEndpoint != null && !IsLocalIpAddress(msg.InternalEndpoint.Address))
+            {
+                // 127.0.0.1:port fallback address
+                // Clients can just ignore this address when checking if the server is on it's local network
+                InternalEndpoint = new IPEndPoint(IPAddress.Loopback, msg.InternalEndpoint.Port);
+                InternalEndpoint6 = new IPEndPoint(IPAddress.IPv6Loopback, msg.InternalEndpoint6.Port);
+            }
+            else
+            {
+                InternalEndpoint = msg.InternalEndpoint;
+                InternalEndpoint6 = msg.InternalEndpoint6;
+            }
 
             // Due to NAT, non-static IP addresses and roaming the endpoint may change during the lifetime of a server.
             if (!externalEndpoint.Equals(ExternalEndpoint) && !IsLocalIpAddress(externalEndpoint.Address))
