@@ -36,6 +36,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Mono.Nat" Version="3.0.4" />
+    <PackageReference Include="Valkey.Glide" Version="1.1.0" />
     <ProjectReference Include="..\LmpCommon\LmpCommon.csproj" />
     <ProjectReference Include="..\LmpGlobal\LmpGlobal.csproj" />
   </ItemGroup>

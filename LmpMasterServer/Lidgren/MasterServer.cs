@@ -8,6 +8,7 @@ using LmpCommon.Message.Types;
 using LmpCommon.RepoRetrievers;
 using LmpCommon.Time;
 using LmpGlobal;
+using LmpMasterServer.Geolocalization;
 using LmpMasterServer.Log;
 using LmpMasterServer.Structure;
 using Microsoft.VisualStudio.Threading;
@@ -327,24 +328,20 @@ namespace LmpMasterServer.Lidgren
         {
             var t = Task.Run(async () =>
             {
-                while(RunServer)
+                var _ = new ValkeyCache(); // Trigger static constructor to initialize Valkey client in the background
+                while (RunServer)
                 {
                     if (Server.CountryCodeRefreshQueue.TryDequeue(out var item))
                     {
                         (var id, var endpoint) = item;
                         if (ServerDictionary.TryGetValue(id, out var server))
                         {
-                            try 
+                            try
                             {
-                                if (await server.SetCountryFromEndpointAsync(endpoint))
+                                if (await server.SetCountryFromEndpointAsync(endpoint)) // Returns whether it made an external request
                                     await Task.Delay(Server.MinCountryCodeRefreshInterval);
-                                else
-                                    Server.CountryCodeRefreshQueue.Enqueue(item);
                             }
-                            catch
-                            {
-                                Server.CountryCodeRefreshQueue.Enqueue(item);
-                            }
+                            catch { } // No need to requeue as that will be triggered on the next server update if the country code is still missing
                         }
                     } else {
                         await Task.Delay(CountryCodeRefreshInterval);
