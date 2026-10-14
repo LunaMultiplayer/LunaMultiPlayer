@@ -334,17 +334,12 @@ namespace LmpMasterServer.Lidgren
                         (var id, var endpoint) = item;
                         if (ServerDictionary.TryGetValue(id, out var server))
                         {
-                            try 
+                            try
                             {
-                                if (await server.SetCountryFromEndpointAsync(endpoint))
+                                if (await server.SetCountryFromEndpointAsync(endpoint)) // Returns whether it made an external request
                                     await Task.Delay(Server.MinCountryCodeRefreshInterval);
-                                else
-                                    Server.CountryCodeRefreshQueue.Enqueue(item);
                             }
-                            catch
-                            {
-                                Server.CountryCodeRefreshQueue.Enqueue(item);
-                            }
+                            catch { } // No need to requeue as that will be triggered on the next server update if the country code is still missing
                         }
                     } else {
                         await Task.Delay(CountryCodeRefreshInterval);

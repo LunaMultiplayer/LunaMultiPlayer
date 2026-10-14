@@ -54,10 +54,6 @@ namespace LmpMasterServer.Structure
             ServerVersion = msg.ServerVersion;
             ServerName = msg.ServerName.Length > 30 ? msg.ServerName.Substring(0, 30) : msg.ServerName;
             Description = msg.Description.Length > 200 ? msg.Description.Substring(0, 200) : msg.Description;
-
-            if (!string.IsNullOrEmpty(msg.CountryCode) && CountryCodes.Contains(msg.CountryCode.ToUpper()))
-                Country = msg.CountryCode.ToUpper();
-
             Website = msg.Website.Length > 60 ? msg.Website.Substring(0, 60) : msg.Website;
             WebsiteText = msg.WebsiteText.Length > 15 ? msg.WebsiteText.Substring(0, 15) : msg.WebsiteText;
             RainbowEffect = msg.RainbowEffect;
@@ -70,8 +66,23 @@ namespace LmpMasterServer.Structure
             WarpMode = msg.WarpMode;
             TerrainQuality = msg.TerrainQuality;
 
-            if (string.IsNullOrEmpty(Country) && !CountryCodeRefreshQueue.Contains((Id, ExternalEndpoint)))
-                CountryCodeRefreshQueue.Enqueue((Id, ExternalEndpoint));
+            if (!string.IsNullOrEmpty(msg.CountryCode) && CountryCodes.Contains(msg.CountryCode.ToUpper()))
+            {
+                // Always override with the message value if it's valid
+                Country = msg.CountryCode.ToUpper();
+            }
+            else if (string.IsNullOrEmpty(Country))
+            {
+                // Only if not yet set, try to fetch from cache or queue for refresh.
+                if (AddressCountries.TryGet(externalEndpoint.Address, out var countryCode))
+                {
+                    Country = countryCode;
+                }
+                else if (!CountryCodeRefreshQueue.Contains((Id, ExternalEndpoint)))
+                {
+                    CountryCodeRefreshQueue.Enqueue((Id, ExternalEndpoint));
+                }
+            }
 
             if (!Website.Contains("://"))
             {
@@ -119,12 +130,12 @@ namespace LmpMasterServer.Structure
                 else
                 {
                     LunaLog.Normal($"COUNTRY CODE LOOKUP for {externalEndpoint}");
-                    Country = await IpApi.GetCountryAsync(externalEndpoint);
+                    Country = await GeoIp2.GetCountryAsync(externalEndpoint);
                     if (string.IsNullOrEmpty(Country))
-                        Country = await IpLocate.GetCountryAsync(externalEndpoint);
+                        Country = await IpApi.GetCountryAsync(externalEndpoint);
 
                     if (string.IsNullOrEmpty(Country))
-                        Country = await IpLocate.GetCountryAsyncGeoIp2(externalEndpoint);
+                        Country = await IpLocate.GetCountryAsync(externalEndpoint);
 
                     if (string.IsNullOrEmpty(Country))
                         LunaLog.Debug($"SetCountryFromEndpoint failed for {externalEndpoint}: No lookup successful");
