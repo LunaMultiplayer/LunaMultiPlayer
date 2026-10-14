@@ -732,6 +732,14 @@ namespace LmpClient.VesselUtilities
                 if (!forceReload && existingPartCount == vesselProto.protoPartSnapshots.Count &&
                     existingCrewCount == vesselProto.GetVesselCrew().Count)
                 {
+                    //Maneuver-node-only updates always land here (a flight plan edit never
+                    //changes part or crew count), so we must still ingest the incoming flight
+                    //plan even though we skip the reload. Without this the vessel keeps its
+                    //stale flight plan and the PatchedConicSolver loads empty/old maneuver
+                    //data on the next GoOffRails, silently dropping synced burns on handoff.
+                    if (existingVessel.protoVessel != null)
+                        existingVessel.protoVessel.flightPlan = vesselProto.flightPlan;
+
                     //Structure matches — no work needed. Returning the dedicated outcome
                     //lets the caller skip the misleading "Vessel reloaded" log line and
                     //the VesselReloadEvent fire that previously ran on every wire-drift
